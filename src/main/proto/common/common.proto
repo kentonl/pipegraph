@@ -1,0 +1,24 @@
+package common;
+
+option java_package = "edu.uw.cs.lil.pipegraph";
+option java_outer_classname = "Common";
+
+message Resource {
+  extensions 1000 to max;
+}
+
+message StringResource {
+  required string data = 1;
+
+  extend Resource {
+    optional StringResource string = 1001;
+  }
+}
+
+message IntegerResource {
+  required int32 data = 1;
+
+  extend Resource {
+    optional IntegerResource integer = 1002;
+  }
+}

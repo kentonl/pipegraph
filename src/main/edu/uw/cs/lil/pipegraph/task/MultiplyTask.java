@@ -1,24 +1,20 @@
 package edu.uw.cs.lil.pipegraph.task;
 
-import java.util.Map;
-
-import edu.uw.cs.lil.pipegraph.Common.IntegerResource;
-import edu.uw.cs.lil.pipegraph.core.Pipe;
+import edu.uw.cs.lil.pipegraph.CommonProto.IntegerResource;
 import edu.uw.cs.lil.pipegraph.core.Stage;
 
 public class MultiplyTask implements ITask {
 
 	@Override
-	public String getType() {
+	public String getKey() {
 		return "multiply";
 	}
 
 	@Override
-	public void run(Stage stage, Map<String, Pipe> inputs, Pipe output) {
-		output.write(IntegerResource.integer, IntegerResource.newBuilder()
-				.setData(inputs.get("x").read(IntegerResource.integer).getData()
-						* inputs.get("y").read(IntegerResource.integer)
-								.getData())
+	public void run(Stage stage) {
+		stage.write(IntegerResource.integer, IntegerResource.newBuilder()
+				.setData(stage.read("x", IntegerResource.integer).getData()
+						* stage.read("y", IntegerResource.integer).getData())
 				.build());
 	}
 }

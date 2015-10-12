@@ -30,5 +30,6 @@ public class LocalPipegraphRunner implements IPipegraphRunner {
 			log.info("Running: {}", s);
 			graph.runStage(s);
 		}
+		log.info("Finished running pipegraph.");
 	}
 }

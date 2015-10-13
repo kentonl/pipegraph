@@ -30,6 +30,10 @@ public class Pipegraph {
 		log.info("Stages:{}", stages.values());
 	}
 
+	public Context getContext() {
+		return context;
+	}
+
 	public Stage getStage(String name) {
 		return stages.get(name);
 	}

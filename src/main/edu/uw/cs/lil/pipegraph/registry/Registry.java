@@ -29,6 +29,12 @@ public class Registry {
 		}
 	}
 
+	public <R extends IRegisterable> boolean has(Class<R> registerableClass,
+			String key) {
+		return registry.computeIfAbsent(registerableClass, this::createClassMap)
+				.containsKey(key);
+	}
+
 	private Map<String, Class<? extends IRegisterable>> createClassMap(
 			Class<? extends IRegisterable> c) {
 		return reflections.getSubTypesOf(c).stream()

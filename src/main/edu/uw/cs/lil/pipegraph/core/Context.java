@@ -29,6 +29,7 @@ public class Context {
 				new ConfigurationBuilder()
 						.setUrls(ClasspathHelper.forJavaClassPath()));
 		this.directory = getDirectory(root, filename);
+		this.directory.mkdirs();
 		this.extensions = getExtensions(reflections);
 		this.registry = new Registry(reflections);
 	}

@@ -17,10 +17,10 @@ public class PipegraphTest {
 		try {
 			final Pipegraph graph = new Pipegraph(
 					Files.createTempDirectory("test").toFile(), "test.conf");
-			final IPipegraphRunner runner = new LocalPipegraphRunner();
+			final IPipegraphRunner runner = new LocalPipegraphRunner(false);
 			runner.run(graph);
 			Assert.assertEquals(36, graph.getStage("final")
-					.readOutput(IntegerResource.integer).getData());
+					.<IntegerResource> readOutput().getData());
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}

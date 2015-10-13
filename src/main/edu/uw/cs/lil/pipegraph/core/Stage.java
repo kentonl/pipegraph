@@ -16,15 +16,16 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
 
 import edu.uw.cs.lil.pipegraph.CommonProto.Resource;
+import edu.uw.cs.lil.pipegraph.task.ITask;
 
 public class Stage {
-	private final static String			DEFAULT_SUBNAME	= "data";
-
 	private final Config				arguments;
 	private final Context				context;
 	private final Map<String, String>	inputs;
 	private final String				name;
-	private final File					outputDir;
+	private final File					output;
+	private Status						status;
+	private final ITask					task;
 	private final String				type;
 
 	public Stage(String name, Config config, Context context) {
@@ -38,9 +39,10 @@ public class Stage {
 				Collectors.<Entry<String, ConfigValue>, String, String> toMap(
 						entry -> entry.getKey(),
 						entry -> inputConfig.getString(entry.getKey())));
-		this.outputDir = new File(context.getDirectory(), name);
-		this.outputDir.mkdirs();
+		this.output = new File(context.getDirectory(), name);
 		this.context = context;
+		this.status = Status.WAITING;
+		this.task = context.getRegistry().create(ITask.class, type);
 	}
 
 	public Config getArguments() {
@@ -59,34 +61,30 @@ public class Stage {
 		return name;
 	}
 
+	public GeneratedExtension<Resource, ?> getOutputExtension() {
+		return task.getOutputExtension();
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
 	public String getType() {
 		return type;
 	}
 
-	public Resource read(String inputName) {
-		return read(inputName, DEFAULT_SUBNAME);
+	public boolean hasInput(String inputName) {
+		return new File(context.getDirectory(), inputs.get(inputName)).exists();
+	}
+
+	public boolean hasOutput() {
+		return output.exists();
 	}
 
 	public <T> T read(String inputName,
 			GeneratedExtension<Resource, T> extension) {
-		return read(inputName, DEFAULT_SUBNAME, extension);
-	}
-
-	public Resource read(String inputName, String subname) {
-		try (final InputStream in = new FileInputStream(new File(
-				new File(context.getDirectory(), inputs.get(inputName)),
-				subname))) {
-			return Resource.parseFrom(in, context.getExtensions());
-		} catch (final IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public <T> T read(String inputName, String subname,
-			GeneratedExtension<Resource, T> extension) {
-		try (final InputStream in = new FileInputStream(new File(
-				new File(context.getDirectory(), inputs.get(inputName)),
-				subname))) {
+		try (final InputStream in = new FileInputStream(
+				new File(context.getDirectory(), inputs.get(inputName)))) {
 			return Resource.parseFrom(in, context.getExtensions())
 					.getExtension(extension);
 		} catch (final IOException e) {
@@ -94,42 +92,48 @@ public class Stage {
 		}
 	}
 
-	public <T> T readOutput(GeneratedExtension<Resource, T> extension) {
-		return readOutput(DEFAULT_SUBNAME, extension);
-	}
-
-	public <T> T readOutput(String subname,
-			GeneratedExtension<Resource, T> extension) {
-		try (final InputStream out = new FileInputStream(
-				new File(outputDir, subname))) {
+	@SuppressWarnings("unchecked")
+	public <T> T readOutput() {
+		try (final InputStream out = new FileInputStream(output)) {
 			return Resource.parseFrom(out, context.getExtensions())
-					.getExtension(extension);
+					.getExtension(
+							(GeneratedExtension<Resource, T>) getOutputExtension());
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public void run() {
+		task.run(this);
+	}
+
+	public void setStatus(Status status) {
+		this.status = status;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s(%s)", getName(),
+		return String.format("%s(%s) [%s]", getName(),
 				inputs.entrySet().stream()
 						.map(entry -> String.format("%s=%s", entry.getKey(),
 								entry.getValue()))
-				.collect(Collectors.joining(",")));
+				.collect(Collectors.joining(",")), status);
 	}
 
-	public <T> void write(GeneratedExtension<Resource, T> extension, T value) {
-		write(DEFAULT_SUBNAME, extension, value);
-	}
-
-	public <T> void write(String subname,
-			final GeneratedExtension<Resource, T> extension, final T value) {
-		try (final OutputStream out = new FileOutputStream(
-				new File(outputDir, subname))) {
-			Resource.newBuilder().setExtension(extension, value).build()
-					.writeTo(out);
+	@SuppressWarnings("unchecked")
+	public <T> void write(T value) {
+		try (final OutputStream out = new FileOutputStream(output)) {
+			Resource.newBuilder()
+					.setExtension(
+							(GeneratedExtension<Resource, T>) getOutputExtension(),
+							value)
+					.build().writeTo(out);
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static enum Status {
+		COMPLETED, RUNNING, WAITING
 	}
 }

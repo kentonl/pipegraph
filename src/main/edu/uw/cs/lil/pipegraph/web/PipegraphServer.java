@@ -4,13 +4,17 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.uw.cs.lil.pipegraph.core.Pipegraph;
 
 public class PipegraphServer extends Server {
+	public static final Logger log = LoggerFactory
+			.getLogger(PipegraphServer.class);
 
 	public PipegraphServer(Pipegraph graph) {
-		super(8080);
+		super(0);
 
 		final ResourceHandler resourceHandler = new ResourceHandler();
 		resourceHandler.setDirectoriesListed(true);

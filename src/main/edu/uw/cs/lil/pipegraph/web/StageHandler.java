@@ -68,7 +68,7 @@ public class StageHandler extends AbstractHandler {
 	}
 
 	private static Span renderStageReference(Stage stage) {
-		if (stage.getStatus() == Stage.Status.COMPLETED && stage.hasOutput()) {
+		if (stage.isOutputReady()) {
 			return new Span().appendChild(new A().setHref(stage.getName())
 					.appendText(stage.getName()));
 		} else {
@@ -133,7 +133,7 @@ public class StageHandler extends AbstractHandler {
 	@SuppressWarnings("unchecked")
 	private Div createStageElement(Stage stage, HttpServletRequest request) {
 		final Div element = new Div();
-		if (stage.getStatus() == Stage.Status.COMPLETED) {
+		if (stage.isOutputReady()) {
 			if (stage.hasOutput()) {
 				if (pipegraph.getContext().getRegistry().has(
 						IResourceRenderer.class,

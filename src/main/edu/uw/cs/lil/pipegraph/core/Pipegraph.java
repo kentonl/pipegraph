@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import edu.uw.cs.lil.pipegraph.task.ITask;
-
 public class Pipegraph {
 	public static final Logger			log	= LoggerFactory
 			.getLogger(Pipegraph.class);
@@ -49,9 +47,5 @@ public class Pipegraph {
 			stages.put(target, s);
 			s.getInputs().values().forEach(this::populateStagesFor);
 		}
-	}
-
-	public void runStage(Stage s) {
-		context.getRegistry().create(ITask.class, s.getType()).run(s);
 	}
 }

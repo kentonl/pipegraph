@@ -42,15 +42,14 @@ public class LocalPipegraphRunner implements IPipegraphRunner {
 		if (runServer) {
 			try {
 				server.start();
+				log.info("View pipegraph at {}", server.getURI());
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
 			}
 		}
 		for (final Stage s : sortedStages) {
-			log.info("Running: {}", s);
-			s.setStatus(Stage.Status.RUNNING);
-			graph.runStage(s);
-			s.setStatus(Stage.Status.COMPLETED);
+			log.debug("Running: {}", s);
+			s.run();
 		}
 		log.info("Finished running pipegraph.");
 		if (runServer) {

@@ -77,8 +77,26 @@ public class Stage {
 		return new File(context.getDirectory(), inputs.get(inputName)).exists();
 	}
 
-	public boolean hasOutput() {
-		return output.exists();
+	@SuppressWarnings("unchecked")
+	public <T> boolean hasOutput() {
+		if (!output.exists()) {
+			return false;
+		}
+		try (final InputStream out = new FileInputStream(output)) {
+			return Resource.parseFrom(out, context.getExtensions())
+					.hasExtension(
+							(GeneratedExtension<Resource, T>) getOutputExtension());
+		} catch (final IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public boolean hasStatus(Status other) {
+		return status.equals(other);
+	}
+
+	public boolean isOutputReady() {
+		return hasStatus(Status.COMPLETED) || hasStatus(Status.CACHED);
 	}
 
 	public <T> T read(String inputName,
@@ -104,7 +122,13 @@ public class Stage {
 	}
 
 	public void run() {
-		task.run(this);
+		if (hasOutput()) {
+			status = Stage.Status.CACHED;
+		} else {
+			status = Stage.Status.RUNNING;
+			task.run(this);
+			status = Stage.Status.COMPLETED;
+		}
 	}
 
 	public void setStatus(Status status) {
@@ -134,6 +158,6 @@ public class Stage {
 	}
 
 	public static enum Status {
-		COMPLETED, RUNNING, WAITING
+		CACHED, COMPLETED, RUNNING, WAITING
 	}
 }

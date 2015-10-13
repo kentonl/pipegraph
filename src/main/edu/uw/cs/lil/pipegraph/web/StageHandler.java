@@ -137,10 +137,10 @@ public class StageHandler extends AbstractHandler {
 			if (stage.hasOutput()) {
 				if (pipegraph.getContext().getRegistry().has(
 						IResourceRenderer.class,
-						stage.getOutputExtension().toString())) {
+						stage.getOutputClass().toString())) {
 					element.appendChild(pipegraph.getContext().getRegistry()
 							.create(IResourceRenderer.class,
-									stage.getOutputExtension().toString())
+									stage.getOutputClass().toString())
 							.render(stage.readOutput(), request));
 				} else {
 					element.appendChild(new Pre()

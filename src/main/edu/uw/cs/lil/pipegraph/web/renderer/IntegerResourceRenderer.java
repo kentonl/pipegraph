@@ -10,7 +10,7 @@ public class IntegerResourceRenderer
 		implements IResourceRenderer<IntegerResource> {
 	@Override
 	public String getKey() {
-		return IntegerResource.integer.toString();
+		return IntegerResource.class.toString();
 	}
 
 	@Override

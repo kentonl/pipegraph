@@ -10,7 +10,7 @@ public class StringResourceRenderer
 		implements IResourceRenderer<StringResource> {
 	@Override
 	public String getKey() {
-		return StringResource.string.toString();
+		return StringResource.class.toString();
 	}
 
 	@Override

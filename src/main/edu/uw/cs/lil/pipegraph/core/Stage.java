@@ -10,15 +10,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import com.google.protobuf.GeneratedMessage.GeneratedExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.protobuf.Any;
+import com.google.protobuf.Message;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
 
-import edu.uw.cs.lil.pipegraph.CommonProto.Resource;
 import edu.uw.cs.lil.pipegraph.task.ITask;
 
 public class Stage {
+	public static final Logger			log	= LoggerFactory
+			.getLogger(Stage.class);
+
 	private final Config				arguments;
 	private final Context				context;
 	private final Map<String, String>	inputs;
@@ -61,8 +67,8 @@ public class Stage {
 		return name;
 	}
 
-	public GeneratedExtension<Resource, ?> getOutputExtension() {
-		return task.getOutputExtension();
+	public Class<? extends Message> getOutputClass() {
+		return task.getOutputClass();
 	}
 
 	public Status getStatus() {
@@ -77,15 +83,12 @@ public class Stage {
 		return new File(context.getDirectory(), inputs.get(inputName)).exists();
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> boolean hasOutput() {
+	public boolean hasOutput() {
 		if (!output.exists()) {
 			return false;
 		}
-		try (final InputStream out = new FileInputStream(output)) {
-			return Resource.parseFrom(out, context.getExtensions())
-					.hasExtension(
-							(GeneratedExtension<Resource, T>) getOutputExtension());
+		try (final InputStream in = new FileInputStream(output)) {
+			return Any.parseFrom(in).is(getOutputClass());
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -99,23 +102,19 @@ public class Stage {
 		return hasStatus(Status.COMPLETED) || hasStatus(Status.CACHED);
 	}
 
-	public <T> T read(String inputName,
-			GeneratedExtension<Resource, T> extension) {
+	public <T extends Message> T read(String inputName, Class<T> clazz) {
 		try (final InputStream in = new FileInputStream(
 				new File(context.getDirectory(), inputs.get(inputName)))) {
-			return Resource.parseFrom(in, context.getExtensions())
-					.getExtension(extension);
+			return Any.parseFrom(in).unpack(clazz);
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T readOutput() {
-		try (final InputStream out = new FileInputStream(output)) {
-			return Resource.parseFrom(out, context.getExtensions())
-					.getExtension(
-							(GeneratedExtension<Resource, T>) getOutputExtension());
+	public <T extends Message> T readOutput() {
+		try (final InputStream in = new FileInputStream(output)) {
+			return (T) Any.parseFrom(in).unpack(getOutputClass());
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -144,14 +143,9 @@ public class Stage {
 				.collect(Collectors.joining(",")), status);
 	}
 
-	@SuppressWarnings("unchecked")
-	public <T> void write(T value) {
+	public <T extends Message> void write(T value) {
 		try (final OutputStream out = new FileOutputStream(output)) {
-			Resource.newBuilder()
-					.setExtension(
-							(GeneratedExtension<Resource, T>) getOutputExtension(),
-							value)
-					.build().writeTo(out);
+			Any.pack(value).writeTo(out);
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}

@@ -42,7 +42,7 @@ public class LocalPipegraphRunner implements IPipegraphRunner {
 		if (runServer) {
 			try {
 				server.start();
-				log.info("View pipegraph at {}", server.getURI());
+				log.info("View pipegraph at {}", server.getURL());
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
 			}

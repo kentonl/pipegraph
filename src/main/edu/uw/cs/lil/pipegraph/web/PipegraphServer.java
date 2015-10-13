@@ -34,7 +34,8 @@ public class PipegraphServer extends Server {
 
 	public String getURL() {
 		try {
-			return InetAddress.getLocalHost().getCanonicalHostName() + ":"
+			return "http://" + InetAddress.getLocalHost().getCanonicalHostName()
+					+ ":"
 					+ ((ServerConnector) getConnectors()[0]).getLocalPort();
 		} catch (final UnknownHostException e) {
 			throw new RuntimeException(e);

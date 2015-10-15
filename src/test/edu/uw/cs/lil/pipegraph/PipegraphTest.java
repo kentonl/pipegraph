@@ -1,5 +1,6 @@
 package edu.uw.cs.lil.pipegraph;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
@@ -16,7 +17,8 @@ public class PipegraphTest {
 	public void arithmeticTest() {
 		try {
 			final Pipegraph graph = new Pipegraph(
-					Files.createTempDirectory("test").toFile(), "test.conf");
+					Files.createTempDirectory("test").toFile(),
+					new File("src/test/resources/test.conf"));
 			final IPipegraphRunner runner = new LocalPipegraphRunner(false);
 			runner.run(graph);
 			Assert.assertEquals(36, graph.getStage("final")

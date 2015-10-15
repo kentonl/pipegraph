@@ -24,23 +24,23 @@ public class Context {
 	private final ExtensionRegistry	extensions;
 	private final Registry			registry;
 
-	public Context(File root, String filename) {
+	public Context(File root, File configFile) {
 		final Reflections reflections = new Reflections(
 				new ConfigurationBuilder()
 						.setUrls(ClasspathHelper.forJavaClassPath()));
-		this.directory = getDirectory(root, filename);
+		this.directory = getDirectory(root, configFile);
 		this.directory.mkdirs();
 		this.extensions = getExtensions(reflections);
 		this.registry = new Registry(reflections);
 	}
 
-	private static File getDirectory(File root, String filename) {
-		if (!filename.endsWith(".conf")) {
+	private static File getDirectory(File root, File configFile) {
+		if (!configFile.getName().endsWith(".conf")) {
 			throw new IllegalArgumentException(
-					"Invalid extension for " + filename);
+					"Invalid extension for " + configFile);
 		}
-		return new File(root,
-				filename.substring(0, filename.length() - ".conf".length()));
+		return new File(root, configFile.getName().substring(0,
+				configFile.getName().length() - ".conf".length()));
 	}
 
 	private static ExtensionRegistry getExtensions(Reflections reflections) {

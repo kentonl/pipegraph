@@ -41,14 +41,24 @@ public class Stage {
 				? config.getObject("args").toConfig() : ConfigFactory.empty();
 		final Config inputConfig = config.hasPath("inputs")
 				? config.getConfig("inputs") : ConfigFactory.empty();
+		final String scope = getScope(name);
 		this.inputs = inputConfig.entrySet().stream().collect(
 				Collectors.<Entry<String, ConfigValue>, String, String> toMap(
-						entry -> entry.getKey(),
-						entry -> inputConfig.getString(entry.getKey())));
+						entry -> entry.getKey(), entry -> scope
+								+ inputConfig.getString(entry.getKey())));
 		this.output = new File(context.getDirectory(), name);
 		this.context = context;
 		this.status = Status.WAITING;
 		this.task = context.getRegistry().create(ITask.class, type);
+	}
+
+	private static String getScope(String name) {
+		final int scopeIndex = name.lastIndexOf(".");
+		if (scopeIndex > 0) {
+			return name.substring(0, scopeIndex + 1);
+		} else {
+			return "";
+		}
 	}
 
 	public Config getArguments() {

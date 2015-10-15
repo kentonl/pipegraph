@@ -18,9 +18,9 @@ public class Pipegraph {
 	private final Context				context;
 	private final Map<String, Stage>	stages;
 
-	public Pipegraph(File root, String filename) {
-		this.context = new Context(root, filename);
-		this.config = ConfigFactory.parseResourcesAnySyntax(filename);
+	public Pipegraph(File root, File configFile) {
+		this.context = new Context(root, configFile);
+		this.config = ConfigFactory.parseFileAnySyntax(configFile).resolve();
 		this.stages = new HashMap<>();
 
 		config.getStringList("goals").forEach(this::populateStagesFor);

@@ -1,10 +1,9 @@
 package edu.uw.cs.lil.pipegraph.web.renderer;
 
-import javax.servlet.http.HttpServletRequest;
-
 import com.hp.gagawa.java.elements.Div;
 
 import edu.uw.cs.lil.pipegraph.CommonProto.IntegerResource;
+import edu.uw.cs.lil.pipegraph.util.map.ConfigMap;
 
 public class IntegerResourceRenderer
 		implements IResourceRenderer<IntegerResource> {
@@ -14,7 +13,7 @@ public class IntegerResourceRenderer
 	}
 
 	@Override
-	public Div render(IntegerResource r, HttpServletRequest request) {
+	public Div render(IntegerResource r, ConfigMap<String> arguments) {
 		return new Div().setCSSClass("well")
 				.appendText(Integer.toString(r.getData()));
 	}

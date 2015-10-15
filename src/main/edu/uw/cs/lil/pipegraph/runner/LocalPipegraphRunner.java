@@ -49,7 +49,7 @@ public class LocalPipegraphRunner implements IPipegraphRunner {
 		}
 		for (final Stage s : sortedStages) {
 			log.debug("Running: {}", s);
-			s.run();
+			s.run(graph.getStages());
 		}
 		log.info("Finished running pipegraph.");
 		if (runServer) {

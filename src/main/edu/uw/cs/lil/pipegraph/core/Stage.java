@@ -98,9 +98,10 @@ public class Stage {
 			return false;
 		}
 		try (final InputStream in = new FileInputStream(output)) {
-			return Any.parseFrom(in).is(getOutputClass());
-		} catch (final IOException e) {
-			throw new RuntimeException(e);
+			Any.parseFrom(in).unpack(getOutputClass());
+			return true;
+		} catch (NoSuchMethodError | IOException e) {
+			return false;
 		}
 	}
 
@@ -130,8 +131,14 @@ public class Stage {
 		}
 	}
 
-	public void run() {
-		if (hasOutput()) {
+	public void run(Map<String, Stage> stages) {
+		if (!inputs.values().stream()
+				.allMatch(s -> stages.get(s).isOutputReady())) {
+			throw new IllegalArgumentException(
+					"Not all input stages are ready.");
+		}
+		if (hasOutput() && inputs.values().stream()
+				.allMatch(s -> stages.get(s).hasStatus(Status.CACHED))) {
 			status = Stage.Status.CACHED;
 		} else {
 			status = Stage.Status.RUNNING;

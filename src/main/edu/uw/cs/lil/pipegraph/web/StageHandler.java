@@ -3,6 +3,7 @@ package edu.uw.cs.lil.pipegraph.web;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +34,7 @@ import com.hp.gagawa.java.elements.Ul;
 
 import edu.uw.cs.lil.pipegraph.core.Pipegraph;
 import edu.uw.cs.lil.pipegraph.core.Stage;
+import edu.uw.cs.lil.pipegraph.util.map.ConfigMap;
 import edu.uw.cs.lil.pipegraph.web.renderer.IResourceRenderer;
 
 public class StageHandler extends AbstractHandler {
@@ -141,7 +143,13 @@ public class StageHandler extends AbstractHandler {
 					element.appendChild(pipegraph.getContext().getRegistry()
 							.create(IResourceRenderer.class,
 									stage.getOutputClass().toString())
-							.render(stage.readOutput(), request));
+							.render(stage.readOutput(),
+									ConfigMap
+											.<String> of(key -> Optional.of(key)
+													.filter(k -> request
+															.getParameterMap()
+															.containsKey(k))
+											.map(request::getParameter))));
 				} else {
 					element.appendChild(new Pre()
 							.appendText(stage.readOutput().toString()));

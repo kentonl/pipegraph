@@ -31,7 +31,7 @@ public class Stage {
 	private final String				name;
 	private final File					output;
 	private Status						status;
-	private final ITask					task;
+	private final ITask<?>				task;
 	private final String				type;
 
 	public Stage(String name, Config config, Context context) {
@@ -142,7 +142,7 @@ public class Stage {
 			status = Stage.Status.CACHED;
 		} else {
 			status = Stage.Status.RUNNING;
-			task.run(this);
+			write(task.run(this));
 			status = Stage.Status.COMPLETED;
 		}
 	}
@@ -160,7 +160,7 @@ public class Stage {
 				.collect(Collectors.joining(",")), status);
 	}
 
-	public <T extends Message> void write(T value) {
+	private <T extends Message> void write(T value) {
 		try (final OutputStream out = new FileOutputStream(output)) {
 			Any.pack(value).writeTo(out);
 		} catch (final IOException e) {

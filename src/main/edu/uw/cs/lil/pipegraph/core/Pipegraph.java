@@ -19,6 +19,9 @@ public class Pipegraph {
 	private final Map<String, Stage>	stages;
 
 	public Pipegraph(File root, File configFile) {
+		if (!configFile.exists()) {
+			throw new IllegalArgumentException(configFile + " not found.");
+		}
 		this.context = new Context(root, configFile);
 		this.config = ConfigFactory.parseFileAnySyntax(configFile).resolve();
 		this.stages = new HashMap<>();

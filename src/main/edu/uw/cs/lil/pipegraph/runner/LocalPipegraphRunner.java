@@ -2,6 +2,7 @@ package edu.uw.cs.lil.pipegraph.runner;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -28,7 +29,17 @@ public class LocalPipegraphRunner implements IPipegraphRunner {
 	}
 
 	@Override
-	public void run(Pipegraph graph) {
+	public void run(Pipegraph graph, Optional<Integer> port) {
+		final PipegraphServer server = new PipegraphServer(graph, port);
+		if (runServer) {
+			try {
+				server.start();
+				log.info("View pipegraph at {}", server.getURL());
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 		final Map<Stage, List<Stage>> dependents = MapUtil.mapToMap(
 				graph.getStages(), graph::getStage,
 				s -> graph.getStages().values().stream()
@@ -38,15 +49,6 @@ public class LocalPipegraphRunner implements IPipegraphRunner {
 		final List<Stage> sortedStages = GraphUtil.topologicalSort(
 				graph.getStages().values(), s -> dependents.get(s).stream());
 
-		final PipegraphServer server = new PipegraphServer(graph);
-		if (runServer) {
-			try {
-				server.start();
-				log.info("View pipegraph at {}", server.getURL());
-			} catch (final Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
 		for (final Stage s : sortedStages) {
 			log.debug("Running: {}", s);
 			s.run(graph.getStages());

@@ -63,6 +63,7 @@ public class StageHandler extends AbstractHandler {
 				.forEach(head::appendChild);
 		final Body body = new Body();
 		html.appendChild(body);
+
 		final Div container = new Div().setCSSClass("container");
 		body.appendChild(container);
 		container.appendChild(page);

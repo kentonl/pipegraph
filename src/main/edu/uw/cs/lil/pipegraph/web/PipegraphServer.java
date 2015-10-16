@@ -2,6 +2,7 @@ package edu.uw.cs.lil.pipegraph.web;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Optional;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
@@ -17,8 +18,8 @@ public class PipegraphServer extends Server {
 	public static final Logger log = LoggerFactory
 			.getLogger(PipegraphServer.class);
 
-	public PipegraphServer(Pipegraph graph) {
-		super(0);
+	public PipegraphServer(Pipegraph graph, Optional<Integer> port) {
+		super(port.orElse(0));
 
 		final ResourceHandler resourceHandler = new ResourceHandler();
 		resourceHandler.setDirectoriesListed(true);

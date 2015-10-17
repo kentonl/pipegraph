@@ -1,19 +1,25 @@
 package edu.uw.cs.lil.pipegraph.web.renderer;
 
 import com.hp.gagawa.java.elements.Div;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import edu.uw.cs.lil.pipegraph.CommonProto.IntegerResource;
-import edu.uw.cs.lil.pipegraph.util.map.ConfigMap;
 
 public class IntegerResourceRenderer
 		implements IResourceRenderer<IntegerResource> {
+	@Override
+	public Config getDefaultArguments() {
+		return ConfigFactory.empty();
+	}
+
 	@Override
 	public String getKey() {
 		return IntegerResource.class.toString();
 	}
 
 	@Override
-	public Div render(IntegerResource r, ConfigMap<String> arguments) {
+	public Div render(IntegerResource r, Config arguments) {
 		return new Div().setCSSClass("well")
 				.appendText(Integer.toString(r.getData()));
 	}

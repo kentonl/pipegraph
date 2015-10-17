@@ -3,7 +3,6 @@ package edu.uw.cs.lil.pipegraph.web;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,10 +30,11 @@ import com.hp.gagawa.java.elements.Th;
 import com.hp.gagawa.java.elements.Thead;
 import com.hp.gagawa.java.elements.Tr;
 import com.hp.gagawa.java.elements.Ul;
+import com.typesafe.config.ConfigFactory;
 
 import edu.uw.cs.lil.pipegraph.core.Pipegraph;
 import edu.uw.cs.lil.pipegraph.core.Stage;
-import edu.uw.cs.lil.pipegraph.util.map.ConfigMap;
+import edu.uw.cs.lil.pipegraph.util.MapUtil;
 import edu.uw.cs.lil.pipegraph.web.renderer.IResourceRenderer;
 
 public class StageHandler extends AbstractHandler {
@@ -64,7 +64,7 @@ public class StageHandler extends AbstractHandler {
 		final Body body = new Body();
 		html.appendChild(body);
 
-		final Div container = new Div().setCSSClass("container");
+		final Div container = new Div().setCSSClass("container-fluid");
 		body.appendChild(container);
 		container.appendChild(page);
 		return html;
@@ -133,7 +133,6 @@ public class StageHandler extends AbstractHandler {
 		return element;
 	}
 
-	@SuppressWarnings("unchecked")
 	private Div createStageElement(Stage stage, HttpServletRequest request) {
 		final Div element = new Div();
 		if (stage.isOutputReady()) {
@@ -141,16 +140,16 @@ public class StageHandler extends AbstractHandler {
 				if (pipegraph.getContext().getRegistry().has(
 						IResourceRenderer.class,
 						stage.getOutputClass().toString())) {
-					element.appendChild(pipegraph.getContext().getRegistry()
-							.create(IResourceRenderer.class,
-									stage.getOutputClass().toString())
-							.render(stage.readOutput(),
-									ConfigMap
-											.<String> of(key -> Optional.of(key)
-													.filter(k -> request
-															.getParameterMap()
-															.containsKey(k))
-											.map(request::getParameter))));
+					final IResourceRenderer<?> renderer = pipegraph.getContext()
+							.getRegistry().create(IResourceRenderer.class,
+									stage.getOutputClass().toString());
+					element.appendChild(renderer.render(stage.readOutput(),
+							ConfigFactory
+									.parseMap(MapUtil.mapToMap(
+											request.getParameterMap(), k -> k,
+											v -> v[0]))
+									.withFallback(
+											renderer.getDefaultArguments())));
 				} else {
 					element.appendChild(new Pre()
 							.appendText(stage.readOutput().toString()));

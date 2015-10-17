@@ -27,7 +27,7 @@ public class GraphUtil {
 	private static <T> void visit(T current, Set<T> visited, Set<T> frontier,
 			Function<T, Stream<T>> dependents, LinkedList<T> sorted) {
 		if (frontier.contains(current)) {
-			throw new IllegalArgumentException(
+			throw new InvalidDAGException(
 					"Cycles exist in dependencies: (see " + current + ")");
 		} else if (!visited.contains(current)) {
 			frontier.add(current);
@@ -36,6 +36,12 @@ public class GraphUtil {
 			frontier.remove(current);
 			visited.add(current);
 			sorted.addFirst(current);
+		}
+	}
+
+	public static class InvalidDAGException extends RuntimeException {
+		public InvalidDAGException(String message) {
+			super(message);
 		}
 	}
 }

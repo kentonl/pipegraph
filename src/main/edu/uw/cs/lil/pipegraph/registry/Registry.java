@@ -21,9 +21,13 @@ public class Registry {
 	public <R extends IRegisterable> R create(Class<R> registerableClass,
 			String key) {
 		try {
-			return (R) registry
-					.computeIfAbsent(registerableClass, this::createClassMap)
-					.get(key).newInstance();
+			final Map<String, Class<? extends IRegisterable>> classMap = registry
+					.computeIfAbsent(registerableClass, this::createClassMap);
+			if (!classMap.containsKey(key)) {
+				throw new IllegalArgumentException(key
+						+ " not found in the registry of " + registerableClass);
+			}
+			return (R) classMap.get(key).newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}

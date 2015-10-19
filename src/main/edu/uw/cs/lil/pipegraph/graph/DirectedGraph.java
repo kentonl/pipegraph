@@ -61,4 +61,8 @@ public class DirectedGraph<T> {
 	public Stream<T> nodeStream() {
 		return Arrays.stream(nodes);
 	}
+
+	public void removeEdge(int from, int to) {
+		adjacency[from][to] = false;
+	}
 }

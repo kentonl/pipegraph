@@ -18,4 +18,23 @@ public class Transitive {
 		}
 		return closedGraph;
 	}
+
+	public static <T> DirectedGraph<T> reduction(DirectedGraph<T> graph) {
+		final DirectedGraph<T> reducedGraph = closure(graph);
+		for (int i = 0; i < reducedGraph.getNodes().length; i++) {
+			reducedGraph.removeEdge(i, i);
+		}
+		for (int i = 0; i < reducedGraph.getNodes().length; i++) {
+			for (int j = 0; j < reducedGraph.getNodes().length; j++) {
+				if (reducedGraph.hasEdge(i, j)) {
+					for (int k = 0; k < reducedGraph.getNodes().length; k++) {
+						if (reducedGraph.hasEdge(j, k)) {
+							reducedGraph.removeEdge(i, k);
+						}
+					}
+				}
+			}
+		}
+		return reducedGraph;
+	}
 }

@@ -8,28 +8,35 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-import edu.uw.cs.lil.pipegraph.util.GraphUtil;
+import edu.uw.cs.lil.pipegraph.graph.DirectedGraph;
+import edu.uw.cs.lil.pipegraph.graph.Topological;
+import edu.uw.cs.lil.pipegraph.graph.Topological.InvalidDAGException;
 
 public class GraphUtilTest {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = InvalidDAGException.class)
 	public void testImpossibleTopologicalSort() {
-		final Item i0 = new Item();
-		final Item i1 = new Item(i0);
-		i0.dependents.add(i1);
-		GraphUtil.topologicalSort(Arrays.asList(i0, i1),
-				i -> i.dependents.stream());
+		final Item[] items = new Item[2];
+		items[0] = new Item();
+		items[1] = new Item(items[0]);
+		items[0].dependents.add(items[1]);
+		final DirectedGraph<Item> testGraph = new DirectedGraph<>(items,
+				i -> i.dependents);
+		Topological.sort(testGraph);
 	}
 
 	@Test
 	public void testPossibleTopologicalSort() {
-		final Item i0 = new Item();
-		final Item i1 = new Item(i0);
-		final Item i2 = new Item(i1);
-		final Item i3 = new Item(i1);
-		final Item i4 = new Item(i2, i3);
-		final List<Item> sorted = new ArrayList<>(GraphUtil.topologicalSort(
-				Arrays.asList(i0, i2, i4, i1, i3), i -> i.dependents.stream()));
+		final Item[] items = new Item[5];
+		items[0] = new Item();
+		items[1] = new Item(items[0]);
+		items[2] = new Item(items[1]);
+		items[3] = new Item(items[1]);
+		items[4] = new Item(items[2], items[3]);
+		final DirectedGraph<Item> testGraph = new DirectedGraph<>(items,
+				i -> i.dependents);
+		final List<Item> sorted = new ArrayList<>(
+				Topological.sort(testGraph));
 		for (int i = 0; i < sorted.size(); i++) {
 			for (int j = i + 1; j < sorted.size(); j++) {
 				Assert.assertFalse(

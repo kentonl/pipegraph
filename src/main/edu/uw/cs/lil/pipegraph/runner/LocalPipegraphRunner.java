@@ -10,7 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import edu.uw.cs.lil.pipegraph.core.Pipegraph;
 import edu.uw.cs.lil.pipegraph.core.Stage;
-import edu.uw.cs.lil.pipegraph.util.GraphUtil;
+import edu.uw.cs.lil.pipegraph.graph.DirectedGraph;
+import edu.uw.cs.lil.pipegraph.graph.Topological;
 import edu.uw.cs.lil.pipegraph.util.MapUtil;
 import edu.uw.cs.lil.pipegraph.web.PipegraphServer;
 
@@ -46,8 +47,10 @@ public class LocalPipegraphRunner implements IPipegraphRunner {
 						.filter(d -> d.getInputs().values().stream()
 								.map(graph::getStage).anyMatch(s::equals))
 						.collect(Collectors.toList()));
-		final List<Stage> sortedStages = GraphUtil.topologicalSort(
-				graph.getStages().values(), s -> dependents.get(s).stream());
+		final DirectedGraph<Stage> stageGraph = new DirectedGraph<>(
+				graph.getStages().values().toArray(new Stage[0]),
+				s -> dependents.get(s));
+		final List<Stage> sortedStages = Topological.sort(stageGraph);
 
 		for (final Stage s : sortedStages) {
 			log.debug("Running: {}", s);

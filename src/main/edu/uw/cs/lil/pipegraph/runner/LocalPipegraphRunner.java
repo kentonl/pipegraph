@@ -12,7 +12,9 @@ import edu.uw.cs.lil.pipegraph.core.Pipegraph;
 import edu.uw.cs.lil.pipegraph.core.Stage;
 import edu.uw.cs.lil.pipegraph.graph.DirectedGraph;
 import edu.uw.cs.lil.pipegraph.graph.Topological;
+import edu.uw.cs.lil.pipegraph.util.EnumUtil.Unit;
 import edu.uw.cs.lil.pipegraph.util.MapUtil;
+import edu.uw.cs.lil.pipegraph.util.tuple.Pair;
 import edu.uw.cs.lil.pipegraph.web.PipegraphServer;
 
 public class LocalPipegraphRunner implements IPipegraphRunner {
@@ -40,16 +42,16 @@ public class LocalPipegraphRunner implements IPipegraphRunner {
 				throw new RuntimeException(e);
 			}
 		}
-
-		final Map<Stage, List<Stage>> dependents = MapUtil.mapToMap(
+		final Map<Stage, List<Pair<Stage, Unit>>> edges = MapUtil.mapToMap(
 				graph.getStages(), graph::getStage,
 				s -> graph.getStages().values().stream()
 						.filter(d -> d.getInputs().values().stream()
 								.map(graph::getStage).anyMatch(s::equals))
+						.map(d -> Pair.of(d, Unit.unit))
 						.collect(Collectors.toList()));
-		final DirectedGraph<Stage> stageGraph = new DirectedGraph<>(
+		final DirectedGraph<Stage, Unit> stageGraph = new DirectedGraph<>(
 				graph.getStages().values().toArray(new Stage[0]),
-				s -> dependents.get(s));
+				s -> edges.get(s), Unit.class);
 		final List<Stage> sortedStages = Topological.sort(stageGraph);
 
 		for (final Stage s : sortedStages) {

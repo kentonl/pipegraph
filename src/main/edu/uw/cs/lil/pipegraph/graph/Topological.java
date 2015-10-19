@@ -10,10 +10,11 @@ public class Topological {
 	private Topological() {
 	}
 
-	public static <T> List<T> sort(DirectedGraph<T> graph) {
-		final LinkedList<T> sorted = new LinkedList<>();
-		final Set<T> visited = new HashSet<>();
-		final Stack<T> frontier = new Stack<>();
+	// Any present edge is assumed to be a dependency.
+	public static <N, E> List<N> sort(DirectedGraph<N, E> graph) {
+		final LinkedList<N> sorted = new LinkedList<>();
+		final Set<N> visited = new HashSet<>();
+		final Stack<N> frontier = new Stack<>();
 		while (sorted.size() < graph.getNodes().length) {
 			visit(graph.nodeStream().filter(i -> !visited.contains(i))
 					.findFirst().get(), visited, frontier, graph, sorted);
@@ -21,8 +22,9 @@ public class Topological {
 		return sorted;
 	}
 
-	private static <T> void visit(T current, Set<T> visited, Stack<T> frontier,
-			DirectedGraph<T> graph, LinkedList<T> sorted) {
+	private static <N, E> void visit(N current, Set<N> visited,
+			Stack<N> frontier, DirectedGraph<N, E> graph,
+			LinkedList<N> sorted) {
 		if (frontier.contains(current)) {
 			final StringBuffer cycle = new StringBuffer(current + " <-- ");
 			while (frontier.peek() != current) {
@@ -33,8 +35,8 @@ public class Topological {
 					"Cycles exist in dependencies: " + cycle);
 		} else if (!visited.contains(current)) {
 			frontier.push(current);
-			graph.dependentStream(current)
-					.forEach(d -> visit(d, visited, frontier, graph, sorted));
+			graph.edgeStream(current).forEach(
+					d -> visit(d.first(), visited, frontier, graph, sorted));
 			if (frontier.pop() != current) {
 				throw new RuntimeException("Frontier invariant violated.");
 			}

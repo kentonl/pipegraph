@@ -1,5 +1,6 @@
 package edu.uw.cs.lil.pipegraph.registry;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,10 +43,11 @@ public class Registry {
 	private Map<String, Class<? extends IRegisterable>> createClassMap(
 			Class<? extends IRegisterable> c) {
 		return reflections.getSubTypesOf(c).stream()
+				.filter(subtype -> !Modifier.isAbstract(subtype.getModifiers()))
 				.collect(
 						Collectors.toMap(
 								LambdaUtil.rethrow(subtype -> subtype
 										.newInstance().getKey()),
-				subtype -> subtype));
+						subtype -> subtype));
 	}
 }

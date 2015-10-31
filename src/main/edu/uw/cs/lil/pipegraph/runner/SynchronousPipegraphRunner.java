@@ -17,17 +17,17 @@ import edu.uw.cs.lil.pipegraph.util.MapUtil;
 import edu.uw.cs.lil.pipegraph.util.tuple.Pair;
 import edu.uw.cs.lil.pipegraph.web.PipegraphServer;
 
-public class LocalPipegraphRunner implements IPipegraphRunner {
+public class SynchronousPipegraphRunner implements IPipegraphRunner {
 	public static final Logger	log	= LoggerFactory
-			.getLogger(LocalPipegraphRunner.class);
+			.getLogger(SynchronousPipegraphRunner.class);
 
 	private final boolean		runServer;
 
-	public LocalPipegraphRunner() {
+	public SynchronousPipegraphRunner() {
 		this(true);
 	}
 
-	public LocalPipegraphRunner(boolean runServer) {
+	public SynchronousPipegraphRunner(boolean runServer) {
 		this.runServer = runServer;
 	}
 

@@ -28,7 +28,7 @@ public class Pipegraph {
 
 		config.getStringList("goals").forEach(this::populateStagesFor);
 
-		log.info("Stages:{}", stages.values());
+		log.debug("Stages:{}", stages.values());
 	}
 
 	public Context getContext() {

@@ -27,18 +27,17 @@ public class AsynchronousPipegraphRunner implements IPipegraphRunner {
 	}
 
 	private static void run(Stage s, Pipegraph graph) {
-		s.getInputs().values().parallelStream().map(graph::getStage)
-				.forEach(dep -> {
-					synchronized (dep) {
-						while (!dep.isOutputReady()) {
-							try {
-								dep.wait();
-							} catch (final Exception e) {
-								throw new RuntimeException(e);
-							}
-						}
+		s.getInputs().values().stream().map(graph::getStage).forEach(dep -> {
+			synchronized (dep) {
+				while (!dep.isOutputReady()) {
+					try {
+						dep.wait();
+					} catch (final Exception e) {
+						throw new RuntimeException(e);
 					}
-				});
+				}
+			}
+		});
 		log.debug("Running: {}", s);
 		synchronized (s) {
 			s.run(graph.getStages());

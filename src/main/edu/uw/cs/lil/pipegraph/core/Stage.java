@@ -142,8 +142,12 @@ public class Stage {
 			status = Stage.Status.CACHED;
 		} else {
 			status = Stage.Status.RUNNING;
-			write(task.run(this));
-			status = Stage.Status.COMPLETED;
+			try {
+				write(task.run(this));
+				status = Stage.Status.COMPLETED;
+			} catch (final Exception e) {
+				status = Stage.Status.FAILED;
+			}
 		}
 	}
 
@@ -169,6 +173,6 @@ public class Stage {
 	}
 
 	public static enum Status {
-		CACHED, COMPLETED, RUNNING, WAITING
+		CACHED, COMPLETED, FAILED, RUNNING, WAITING
 	}
 }

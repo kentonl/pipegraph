@@ -1,8 +1,9 @@
 package edu.uw.cs.lil.pipegraph.util.tuple;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Pair<A, B> {
+public class Pair<A, B> implements Serializable {
 	private final A	first;
 	private final B	second;
 

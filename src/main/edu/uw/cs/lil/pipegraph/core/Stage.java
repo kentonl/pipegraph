@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.Message;
@@ -143,9 +144,12 @@ public class Stage {
 		} else {
 			status = Stage.Status.RUNNING;
 			try {
+				MDC.put("stage-name", name);
 				write(task.run(this));
+				MDC.remove("stage-name");
 				status = Stage.Status.COMPLETED;
 			} catch (final Exception e) {
+				log.error(e.getLocalizedMessage());
 				status = Stage.Status.FAILED;
 			}
 		}

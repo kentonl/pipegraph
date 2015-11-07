@@ -13,6 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.uw.cs.lil.pipegraph.core.Pipegraph;
+import edu.uw.cs.lil.pipegraph.web.handler.LogHandler;
+import edu.uw.cs.lil.pipegraph.web.handler.OverviewHandler;
+import edu.uw.cs.lil.pipegraph.web.handler.StageHandler;
 
 public class PipegraphServer extends Server {
 	public static final Logger log = LoggerFactory
@@ -22,13 +25,12 @@ public class PipegraphServer extends Server {
 		super(port.orElse(0));
 
 		final ResourceHandler resourceHandler = new ResourceHandler();
-		resourceHandler.setDirectoriesListed(true);
-		resourceHandler.setWelcomeFiles(new String[] { "index.html" });
+		resourceHandler.setDirectoriesListed(false);
 		resourceHandler.setResourceBase("src/main/resources/public");
 
 		final HandlerList handlers = new HandlerList();
-		handlers.setHandlers(
-				new Handler[] { new StageHandler(graph), resourceHandler });
+		handlers.setHandlers(new Handler[] { new OverviewHandler(graph),
+				new StageHandler(graph), new LogHandler(), resourceHandler });
 
 		setHandler(handlers);
 	}

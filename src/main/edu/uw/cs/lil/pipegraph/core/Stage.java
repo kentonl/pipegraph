@@ -149,7 +149,7 @@ public class Stage {
 				MDC.remove("stage-name");
 				status = Stage.Status.COMPLETED;
 			} catch (final Exception e) {
-				log.error(e.getLocalizedMessage());
+				log.error("Job failed.", e);
 				status = Stage.Status.FAILED;
 			}
 		}

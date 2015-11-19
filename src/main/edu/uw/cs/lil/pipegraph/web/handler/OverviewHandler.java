@@ -35,13 +35,9 @@ public class OverviewHandler extends TargetedHandler {
 	}
 
 	private static Span renderStageReference(Stage stage) {
-		if (stage.isOutputReady()) {
-			return new Span().appendChild(
-					new A().setHref("stage?name=" + stage.getName())
-							.appendText(stage.getName()));
-		} else {
-			return new Span().appendText(stage.getName());
-		}
+		return new Span()
+				.appendChild(new A().setHref("stage?name=" + stage.getName())
+						.appendText(stage.getName()));
 	}
 
 	@Override

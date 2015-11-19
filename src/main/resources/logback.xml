@@ -5,7 +5,7 @@
       <level>INFO</level>
     </filter>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%-5level %logger{36} - %msg%n</pattern>
+      <pattern>[%X{stage-name}] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
 

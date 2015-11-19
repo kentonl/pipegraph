@@ -86,6 +86,10 @@ public class Stage {
 		return status;
 	}
 
+	public ITask<?> getTask() {
+		return task;
+	}
+
 	public String getType() {
 		return type;
 	}

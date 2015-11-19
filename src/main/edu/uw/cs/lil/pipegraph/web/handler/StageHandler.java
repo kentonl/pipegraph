@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hp.gagawa.java.Node;
+import com.hp.gagawa.java.elements.B;
 import com.hp.gagawa.java.elements.Div;
 import com.hp.gagawa.java.elements.Pre;
 import com.typesafe.config.Config;
@@ -45,7 +46,9 @@ public class StageHandler extends TargetedHandler {
 				element.appendText("Stage: " + stage + " has no output.");
 			}
 		} else {
-			element.appendText("Stage: " + stage + " not completed.");
+			element.appendChild(stage.getTask().render(params)
+					.orElseGet(() -> new B().appendText(
+							"Stage: " + stage + " not completed.")));
 		}
 		return element;
 	}

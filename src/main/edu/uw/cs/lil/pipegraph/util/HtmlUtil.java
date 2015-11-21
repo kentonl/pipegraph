@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hp.gagawa.java.Node;
+import com.hp.gagawa.java.elements.A;
 import com.hp.gagawa.java.elements.Body;
 import com.hp.gagawa.java.elements.Div;
 import com.hp.gagawa.java.elements.Head;
@@ -39,6 +40,14 @@ public class HtmlUtil {
 		final Body body = new Body();
 		html.appendChild(body);
 
+		final Div nav = new Div()
+				.setCSSClass("navbar navbar-default navbar-static-top");
+		body.appendChild(nav);
+
+		nav.appendChild(new Div().setCSSClass("container-fluid")
+				.appendChild(new Div().setCSSClass("navbar-header")
+						.appendChild(new A("/").setCSSClass("navbar-brand")
+								.appendText("Home"))));
 		final Div container = new Div().setCSSClass("container-fluid");
 		body.appendChild(container);
 		container.appendChild(content);

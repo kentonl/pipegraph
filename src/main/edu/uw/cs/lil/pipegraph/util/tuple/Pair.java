@@ -2,6 +2,7 @@ package edu.uw.cs.lil.pipegraph.util.tuple;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Optional;
 
 public class Pair<A, B> implements Serializable {
 	private final A	first;
@@ -14,6 +15,11 @@ public class Pair<A, B> implements Serializable {
 
 	public static <A, B> Pair<A, B> of(A first, B second) {
 		return new Pair<>(first, second);
+	}
+
+	public static <A, B> Optional<Pair<A, B>> ofOptional(Optional<A> first,
+			Optional<B> second) {
+		return first.flatMap(f -> second.map(s -> Pair.of(f, s)));
 	}
 
 	@Override

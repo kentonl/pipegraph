@@ -181,6 +181,23 @@ public class Stage {
 	}
 
 	public static enum Status {
-		CACHED, COMPLETED, FAILED, RUNNING, WAITING
+		CACHED, COMPLETED, FAILED, RUNNING, WAITING;
+
+		public String getLabelType() {
+			switch (this) {
+				case CACHED:
+					return "info";
+				case COMPLETED:
+					return "success";
+				case FAILED:
+					return "danger";
+				case RUNNING:
+					return "warning";
+				case WAITING:
+					return "default";
+			}
+			throw new RuntimeException("Unknown label type.");
+		}
+
 	}
 }

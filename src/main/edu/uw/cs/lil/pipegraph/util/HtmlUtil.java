@@ -47,7 +47,7 @@ public class HtmlUtil {
 		nav.appendChild(new Div().setCSSClass("container-fluid")
 				.appendChild(new Div().setCSSClass("navbar-header")
 						.appendChild(new A("/").setCSSClass("navbar-brand")
-								.appendText("Home"))));
+								.appendText("Overview"))));
 		final Div container = new Div().setCSSClass("container-fluid");
 		body.appendChild(container);
 		container.appendChild(content);

@@ -42,8 +42,7 @@ public class OverviewHandler extends TargetedHandler {
 
 	@Override
 	public Node createContent(Config params) {
-		final Table overview = new Table().setCSSClass(
-				"table table-bordered table-hover table-condensed");
+		final Table overview = new Table().setCSSClass("table table-hover");
 		final Thead tableHeader = new Thead();
 		overview.appendChild(tableHeader);
 		final Tr headerRow = new Tr();
@@ -59,16 +58,18 @@ public class OverviewHandler extends TargetedHandler {
 			tableBody.appendChild(bodyRow);
 			bodyRow.appendChild(
 					new Td().appendChild(renderStageReference(stage)));
-			final Ul inputList = new Ul().setCSSClass("list-group");
+			final Ul inputList = new Ul().setCSSClass("list-inline");
 			stage.getInputs().values().stream().map(pipegraph::getStage)
-					.forEach(inputStage -> inputList.appendChild(
-							new Li().setCSSClass("list-group-item").appendChild(
-									renderStageReference(inputStage))));
+					.forEach(inputStage -> inputList.appendChild(new Li()
+							.appendChild(renderStageReference(inputStage))));
 			bodyRow.appendChild(new Td().appendChild(inputList));
 			bodyRow.appendChild(
 					new Td().appendChild(renderLogsReference(stage)));
 			bodyRow.appendChild(
-					new Td().appendText(stage.getStatus().toString()));
+					new Td().appendChild(new Span()
+							.setCSSClass("label label-"
+									+ stage.getStatus().getLabelType())
+					.appendText(stage.getStatus().toString())));
 		}
 		return overview;
 	}

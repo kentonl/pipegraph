@@ -29,9 +29,9 @@ public class StageHandler extends TargetedHandler {
 		final Div element = new Div();
 		if (stage.isOutputReady()) {
 			if (stage.hasOutput()) {
-				if (pipegraph.getContext().getRegistry().has(
-						IResourceRenderer.class,
-						stage.getOutputClass().toString())) {
+				if (!params.hasPath("raw") && pipegraph.getContext()
+						.getRegistry().has(IResourceRenderer.class,
+								stage.getOutputClass().toString())) {
 					final IResourceRenderer<?> renderer = pipegraph.getContext()
 							.getRegistry().create(IResourceRenderer.class,
 									stage.getOutputClass().toString());

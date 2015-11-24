@@ -16,6 +16,8 @@ import com.typesafe.config.Config;
 
 import edu.uw.cs.lil.pipegraph.core.Pipegraph;
 import edu.uw.cs.lil.pipegraph.core.Stage;
+import edu.uw.cs.lil.pipegraph.util.ConfigUtil;
+import edu.uw.cs.lil.pipegraph.util.ConfigUtil.ConfigBuilder;
 import edu.uw.cs.lil.pipegraph.util.HtmlUtil;
 import edu.uw.cs.lil.pipegraph.util.MapUtil;
 
@@ -34,10 +36,23 @@ public class OverviewHandler extends TargetedHandler {
 				.setHref("log?name=" + stage.getName()).appendText("log"));
 	}
 
-	private static Span renderStageReference(Stage stage) {
-		return new Span()
-				.appendChild(new A().setHref("stage?name=" + stage.getName())
-						.appendText(stage.getName()));
+	private static Span renderStageReference(Stage stage, boolean raw) {
+		final ConfigBuilder builder = new ConfigBuilder().add("name",
+				stage.getName());
+		final Span span = new Span();
+		if (raw) {
+			span.appendText(" (");
+			span.appendChild(new A()
+					.setHref("stage" + ConfigUtil
+							.encodeURL(builder.add("raw", true).build()))
+					.appendText("raw"));
+			span.appendText(")");
+		} else {
+			span.appendChild(new A()
+					.setHref("stage" + ConfigUtil.encodeURL(builder.build()))
+					.appendText(stage.getName()));
+		}
+		return span;
 	}
 
 	@Override
@@ -57,11 +72,12 @@ public class OverviewHandler extends TargetedHandler {
 			final Tr bodyRow = new Tr();
 			tableBody.appendChild(bodyRow);
 			bodyRow.appendChild(
-					new Td().appendChild(renderStageReference(stage)));
+					new Td().appendChild(renderStageReference(stage, false))
+							.appendChild(renderStageReference(stage, true)));
 			bodyRow.appendChild(new Td().appendChild(HtmlUtil
 					.mapToDescriptionList(MapUtil.mapToMap(stage.getInputs(),
 							name -> renderStageReference(
-									pipegraph.getStage(name))))
+									pipegraph.getStage(name), false)))
 					.setCSSClass("dl-horizontal")));
 			bodyRow.appendChild(
 					new Td().appendChild(renderLogsReference(stage)));

@@ -2,6 +2,7 @@ package edu.uw.cs.lil.pipegraph.util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,10 @@ import org.slf4j.LoggerFactory;
 import com.hp.gagawa.java.Node;
 import com.hp.gagawa.java.elements.A;
 import com.hp.gagawa.java.elements.Body;
+import com.hp.gagawa.java.elements.Dd;
 import com.hp.gagawa.java.elements.Div;
+import com.hp.gagawa.java.elements.Dl;
+import com.hp.gagawa.java.elements.Dt;
 import com.hp.gagawa.java.elements.Head;
 import com.hp.gagawa.java.elements.Html;
 import com.hp.gagawa.java.elements.Link;
@@ -52,5 +56,14 @@ public class HtmlUtil {
 		body.appendChild(container);
 		container.appendChild(content);
 		return html;
+	}
+
+	public static Dl mapToDescriptionList(Map<String, Node> m) {
+		final Dl descriptionList = new Dl();
+		for (final Map.Entry<String, Node> entry : m.entrySet()) {
+			descriptionList.appendChild(new Dt().appendText(entry.getKey()));
+			descriptionList.appendChild(new Dd().appendChild(entry.getValue()));
+		}
+		return descriptionList;
 	}
 }

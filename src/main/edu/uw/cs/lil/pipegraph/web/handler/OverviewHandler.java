@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import com.hp.gagawa.java.Node;
 import com.hp.gagawa.java.elements.A;
-import com.hp.gagawa.java.elements.Li;
 import com.hp.gagawa.java.elements.Span;
 import com.hp.gagawa.java.elements.Table;
 import com.hp.gagawa.java.elements.Tbody;
@@ -13,11 +12,12 @@ import com.hp.gagawa.java.elements.Td;
 import com.hp.gagawa.java.elements.Th;
 import com.hp.gagawa.java.elements.Thead;
 import com.hp.gagawa.java.elements.Tr;
-import com.hp.gagawa.java.elements.Ul;
 import com.typesafe.config.Config;
 
 import edu.uw.cs.lil.pipegraph.core.Pipegraph;
 import edu.uw.cs.lil.pipegraph.core.Stage;
+import edu.uw.cs.lil.pipegraph.util.HtmlUtil;
+import edu.uw.cs.lil.pipegraph.util.MapUtil;
 
 public class OverviewHandler extends TargetedHandler {
 	public static final Logger	log	= LoggerFactory
@@ -58,11 +58,11 @@ public class OverviewHandler extends TargetedHandler {
 			tableBody.appendChild(bodyRow);
 			bodyRow.appendChild(
 					new Td().appendChild(renderStageReference(stage)));
-			final Ul inputList = new Ul().setCSSClass("list-inline");
-			stage.getInputs().values().stream().map(pipegraph::getStage)
-					.forEach(inputStage -> inputList.appendChild(new Li()
-							.appendChild(renderStageReference(inputStage))));
-			bodyRow.appendChild(new Td().appendChild(inputList));
+			bodyRow.appendChild(new Td().appendChild(HtmlUtil
+					.mapToDescriptionList(MapUtil.mapToMap(stage.getInputs(),
+							name -> renderStageReference(
+									pipegraph.getStage(name))))
+					.setCSSClass("dl-horizontal")));
 			bodyRow.appendChild(
 					new Td().appendChild(renderLogsReference(stage)));
 			bodyRow.appendChild(

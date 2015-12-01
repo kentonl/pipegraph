@@ -1,8 +1,11 @@
 package edu.uw.cs.lil.pipegraph.util.tuple;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class Pair<A, B> implements Serializable {
 	private final A	first;
@@ -11,6 +14,10 @@ public class Pair<A, B> implements Serializable {
 	private Pair(A first, B second) {
 		this.first = first;
 		this.second = second;
+	}
+
+	public static <A, B> Collector<Pair<A, B>, ?, Map<A, B>> mapCollector() {
+		return Collectors.toMap(Pair::first, Pair::second);
 	}
 
 	public static <A, B> Pair<A, B> of(A first, B second) {
@@ -49,5 +56,4 @@ public class Pair<A, B> implements Serializable {
 	public String toString() {
 		return "(" + first + "," + second + ")";
 	}
-
 }

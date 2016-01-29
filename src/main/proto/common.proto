@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package common;
+package pipegraph;
 
-option java_package = "edu.uw.cs.lil.pipegraph";
+option java_package = "edu.uw.pipegraph";
 option java_outer_classname = "CommonProto";
 
 message StringResource {

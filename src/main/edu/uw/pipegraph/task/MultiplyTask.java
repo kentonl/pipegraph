@@ -1,5 +1,7 @@
 package edu.uw.pipegraph.task;
 
+import java.util.stream.Stream;
+
 import edu.uw.pipegraph.CommonProto.IntegerResource;
 import edu.uw.pipegraph.core.Stage;
 
@@ -11,10 +13,10 @@ public class MultiplyTask implements ITask<IntegerResource> {
 	}
 
 	@Override
-	public IntegerResource run(Stage stage) {
-		return IntegerResource.newBuilder()
-				.setData(stage.read("x", IntegerResource.class).getData()
-						* stage.read("y", IntegerResource.class).getData())
-				.build();
+	public Stream<IntegerResource> run(Stage stage) {
+		return Stream.of(IntegerResource.newBuilder()
+				.setData(stage.read("x", IntegerResource.class, 0).getData()
+						* stage.read("y", IntegerResource.class, 0).getData())
+				.build());
 	}
 }

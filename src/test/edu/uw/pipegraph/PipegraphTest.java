@@ -23,8 +23,9 @@ public class PipegraphTest {
 			final IPipegraphRunner runner = new AsynchronousPipegraphRunner(
 					false);
 			runner.run(graph, Optional.empty());
-			Assert.assertEquals(36, graph.getStage("final")
-					.<IntegerResource> readOutput().getData());
+			Assert.assertEquals(36,
+					graph.getStage("final").<IntegerResource> readOutput()
+							.findFirst().get().getData());
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}

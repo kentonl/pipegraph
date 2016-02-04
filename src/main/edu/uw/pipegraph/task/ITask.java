@@ -3,6 +3,7 @@ package edu.uw.pipegraph.task;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.google.protobuf.Message;
 import com.hp.gagawa.java.Node;
@@ -28,5 +29,5 @@ public interface ITask<M extends Message> extends IRegisterable {
 		return Optional.empty();
 	}
 
-	M run(Stage stage);
+	Stream<M> run(Stage stage);
 }

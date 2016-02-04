@@ -6,15 +6,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -30,7 +34,7 @@ public class Stage {
 	private final Context				context;
 	private final Map<String, String>	inputs;
 	private final String				name;
-	private final File					output;
+	private final File					outputDir;
 	private Status						status;
 	private final ITask<?>				task;
 	private final String				type;
@@ -47,7 +51,7 @@ public class Stage {
 				Collectors.<Entry<String, ConfigValue>, String, String> toMap(
 						entry -> entry.getKey(), entry -> scope
 								+ inputConfig.getString(entry.getKey())));
-		this.output = new File(context.getDirectory(), name);
+		this.outputDir = new File(context.getDirectory(), name);
 		this.context = context;
 		this.status = Status.WAITING;
 		this.task = context.getRegistry().create(ITask.class, type);
@@ -59,6 +63,39 @@ public class Stage {
 			return name.substring(0, scopeIndex + 1);
 		} else {
 			return "";
+		}
+	}
+
+	private static int numProtos(File dir) {
+		return dir.listFiles().length;
+	}
+
+	private static <T extends Message> T readProto(File dir, Class<T> clazz,
+			int i) {
+		final File protoFile = new File(dir, Integer.toString(i));
+		try (final InputStream in = new FileInputStream(protoFile)) {
+			return unpackProto(in, clazz);
+		} catch (final IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static <T extends Message> Stream<T> readProtos(File dir,
+			Class<T> clazz) {
+		return IntStream.range(0, numProtos(dir))
+				.mapToObj(i -> readProto(dir, clazz, i));
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T extends Message> T unpackProto(InputStream in,
+			Class<T> clazz) {
+		try {
+			return (T) clazz.getMethod("parseFrom", InputStream.class)
+					.invoke(null, in);
+		} catch (IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException | NoSuchMethodException
+				| SecurityException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -99,15 +136,7 @@ public class Stage {
 	}
 
 	public boolean hasOutput() {
-		if (!output.exists()) {
-			return false;
-		}
-		try (final InputStream in = new FileInputStream(output)) {
-			Any.parseFrom(in).unpack(getOutputClass());
-			return true;
-		} catch (NoSuchMethodError | IOException e) {
-			return false;
-		}
+		return outputDir.exists();
 	}
 
 	public boolean hasStatus(Status other) {
@@ -118,22 +147,35 @@ public class Stage {
 		return hasStatus(Status.COMPLETED) || hasStatus(Status.CACHED);
 	}
 
-	public <T extends Message> T read(String inputName, Class<T> clazz) {
-		try (final InputStream in = new FileInputStream(
-				new File(context.getDirectory(), inputs.get(inputName)))) {
-			return Any.parseFrom(in).unpack(clazz);
-		} catch (final IOException e) {
-			throw new RuntimeException(e);
-		}
+	public <T extends Message> int numOutputs() {
+		return numProtos(outputDir);
+	}
+
+	public <T extends Message> Stream<T> read(String inputName,
+			Class<T> clazz) {
+		return readProtos(
+				new File(context.getDirectory(), inputs.get(inputName)), clazz);
+	}
+
+	public <T extends Message> T read(String inputName, Class<T> clazz, int i) {
+		return readProto(
+				new File(context.getDirectory(), inputs.get(inputName)), clazz,
+				i);
+	}
+
+	public <T extends Message> List<T> readList(String inputName,
+			Class<T> clazz) {
+		return read(inputName, clazz).collect(Collectors.toList());
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends Message> T readOutput() {
-		try (final InputStream in = new FileInputStream(output)) {
-			return (T) Any.parseFrom(in).unpack(getOutputClass());
-		} catch (final IOException e) {
-			throw new RuntimeException(e);
-		}
+	public <T extends Message> Stream<T> readOutput() {
+		return (Stream<T>) readProtos(outputDir, getOutputClass());
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends Message> T readOutput(int i) {
+		return (T) readProto(outputDir, getOutputClass(), i);
 	}
 
 	public void run(Map<String, Stage> stages) {
@@ -172,12 +214,17 @@ public class Stage {
 				.collect(Collectors.joining(",")), status);
 	}
 
-	private <T extends Message> void write(T value) {
-		try (final OutputStream out = new FileOutputStream(output)) {
-			Any.pack(value).writeTo(out);
-		} catch (final IOException e) {
-			throw new RuntimeException(e);
-		}
+	private <T extends Message> void write(Stream<T> values) {
+		outputDir.mkdirs();
+		final AtomicInteger count = new AtomicInteger(0);
+		values.forEach(v -> {
+			try (final OutputStream out = new FileOutputStream(new File(
+					outputDir, Integer.toString(count.getAndIncrement())))) {
+				v.writeTo(out);
+			} catch (final IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}
 
 	public static enum Status {

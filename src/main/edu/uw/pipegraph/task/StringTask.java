@@ -1,5 +1,7 @@
 package edu.uw.pipegraph.task;
 
+import java.util.stream.Stream;
+
 import edu.uw.pipegraph.CommonProto.StringResource;
 import edu.uw.pipegraph.core.Stage;
 
@@ -11,8 +13,8 @@ public class StringTask implements ITask<StringResource> {
 	}
 
 	@Override
-	public StringResource run(Stage stage) {
-		return StringResource.newBuilder()
-				.setData(stage.getArguments().getString("data")).build();
+	public Stream<StringResource> run(Stage stage) {
+		return Stream.of(StringResource.newBuilder()
+				.setData(stage.getArguments().getString("data")).build());
 	}
 }

@@ -1,5 +1,7 @@
 package edu.uw.pipegraph.task;
 
+import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,10 +18,10 @@ public class SumTask implements ITask<IntegerResource> {
 	}
 
 	@Override
-	public IntegerResource run(Stage stage) {
-		final int x = stage.read("x", IntegerResource.class).getData();
-		final int y = stage.read("y", IntegerResource.class).getData();
+	public Stream<IntegerResource> run(Stage stage) {
+		final int x = stage.read("x", IntegerResource.class, 0).getData();
+		final int y = stage.read("y", IntegerResource.class, 0).getData();
 		log.debug("{} + {} = {}", new Integer[] { x, y, x + y });
-		return IntegerResource.newBuilder().setData(x + y).build();
+		return Stream.of(IntegerResource.newBuilder().setData(x + y).build());
 	}
 }

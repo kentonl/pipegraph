@@ -1,5 +1,7 @@
 package edu.uw.pipegraph.task;
 
+import java.util.stream.Stream;
+
 import edu.uw.pipegraph.CommonProto.IntegerResource;
 import edu.uw.pipegraph.core.Stage;
 
@@ -10,8 +12,8 @@ public class IntegerTask implements ITask<IntegerResource> {
 	}
 
 	@Override
-	public IntegerResource run(Stage stage) {
-		return IntegerResource.newBuilder()
-				.setData(stage.getArguments().getInt("data")).build();
+	public Stream<IntegerResource> run(Stage stage) {
+		return Stream.of(IntegerResource.newBuilder()
+				.setData(stage.getArguments().getInt("data")).build());
 	}
 }

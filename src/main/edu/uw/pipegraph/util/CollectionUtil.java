@@ -2,6 +2,10 @@ package edu.uw.pipegraph.util;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -14,11 +18,6 @@ public class CollectionUtil {
 	private CollectionUtil() {
 	}
 
-	public static <A, B> Iterable<Pair<A, B>> zip(Iterable<A> a,
-			Iterable<B> b) {
-		return () -> new ZippedIterator<>(a.iterator(), b.iterator());
-	}
-
 	public static <A, B, C> Iterable<Pair<B, C>> zip(Map<A, B> a, Map<A, C> b) {
 		Preconditions.checkArgument(a.size() == b.size(),
 				"Maps have different size.");
@@ -29,28 +28,57 @@ public class CollectionUtil {
 				.collect(Collectors.toList());
 	}
 
-	public static <A, B> Stream<Pair<A, B>> zipStream(Iterable<A> a,
-			Iterable<B> b) {
-		return StreamSupport.stream(zip(a, b).spliterator(), false);
+	public static <A, B, C> Iterator<C> zip(Stream<? extends A> a,
+			Stream<? extends B> b,
+			BiFunction<? super A, ? super B, ? extends C> zipper) {
+		Objects.requireNonNull(zipper);
+		@SuppressWarnings("unchecked")
+		final Spliterator<A> aSpliterator = (Spliterator<A>) Objects
+				.requireNonNull(a).spliterator();
+		@SuppressWarnings("unchecked")
+		final Spliterator<B> bSpliterator = (Spliterator<B>) Objects
+				.requireNonNull(b).spliterator();
+
+		final Iterator<A> aIterator = Spliterators.iterator(aSpliterator);
+		final Iterator<B> bIterator = Spliterators.iterator(bSpliterator);
+		return new Iterator<C>() {
+			@Override
+			public boolean hasNext() {
+				return aIterator.hasNext() && bIterator.hasNext();
+			}
+
+			@Override
+			public C next() {
+				return zipper.apply(aIterator.next(), bIterator.next());
+			}
+		};
 	}
 
-	private static class ZippedIterator<A, B> implements Iterator<Pair<A, B>> {
-		private final Iterator<A>	a;
-		private final Iterator<B>	b;
+	public static <A, B> Stream<Pair<A, B>> zipStream(Stream<? extends A> a,
+			Stream<? extends B> b) {
+		return zipStream(a, b, Pair::of);
+	}
 
-		public ZippedIterator(Iterator<A> a, Iterator<B> b) {
-			this.a = a;
-			this.b = b;
-		}
+	public static <A, B, C> Stream<C> zipStream(Stream<? extends A> a,
+			Stream<? extends B> b,
+			BiFunction<? super A, ? super B, ? extends C> zipper) {
 
-		@Override
-		public boolean hasNext() {
-			return a.hasNext() && b.hasNext();
-		}
+		final Iterator<C> cIterator = zip(a, b, zipper);
 
-		@Override
-		public Pair<A, B> next() {
-			return Pair.of(a.next(), b.next());
-		}
+		final int both = a.spliterator().characteristics()
+				& b.spliterator().characteristics()
+				& ~(Spliterator.DISTINCT | Spliterator.SORTED);
+		final int characteristics = both;
+
+		final long zipSize = (characteristics & Spliterator.SIZED) != 0
+				? Math.min(a.spliterator().getExactSizeIfKnown(),
+						b.spliterator().getExactSizeIfKnown())
+				: -1;
+
+		final Spliterator<C> split = Spliterators.spliterator(cIterator,
+				zipSize, characteristics);
+		return a.isParallel() || b.isParallel()
+				? StreamSupport.stream(split, true)
+				: StreamSupport.stream(split, false);
 	}
 }

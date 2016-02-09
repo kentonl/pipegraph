@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -161,11 +160,6 @@ public class Stage {
 		return readProto(
 				new File(context.getDirectory(), inputs.get(inputName)), clazz,
 				i);
-	}
-
-	public <T extends Message> List<T> readList(String inputName,
-			Class<T> clazz) {
-		return read(inputName, clazz).collect(Collectors.toList());
 	}
 
 	@SuppressWarnings("unchecked")

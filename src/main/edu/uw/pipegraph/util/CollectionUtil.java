@@ -2,9 +2,6 @@ package edu.uw.pipegraph.util;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,57 +25,28 @@ public class CollectionUtil {
 				.collect(Collectors.toList());
 	}
 
-	public static <A, B, C> Iterator<C> zip(Stream<? extends A> a,
+	public static <A, B> Stream<Pair<A, B>> zip(Stream<? extends A> a,
+			Stream<? extends B> b) {
+		return zip(a, b, Pair::of);
+	}
+
+	public static <A, B, C> Stream<C> zip(Stream<? extends A> a,
 			Stream<? extends B> b,
 			BiFunction<? super A, ? super B, ? extends C> zipper) {
-		Objects.requireNonNull(zipper);
-		@SuppressWarnings("unchecked")
-		final Spliterator<A> aSpliterator = (Spliterator<A>) Objects
-				.requireNonNull(a).spliterator();
-		@SuppressWarnings("unchecked")
-		final Spliterator<B> bSpliterator = (Spliterator<B>) Objects
-				.requireNonNull(b).spliterator();
-
-		final Iterator<A> aIterator = Spliterators.iterator(aSpliterator);
-		final Iterator<B> bIterator = Spliterators.iterator(bSpliterator);
-		return new Iterator<C>() {
+		final Iterator<? extends A> iteratorA = a.iterator();
+		final Iterator<? extends B> iteratorB = b.iterator();
+		final Iterator<C> iteratorC = new Iterator<C>() {
 			@Override
 			public boolean hasNext() {
-				return aIterator.hasNext() && bIterator.hasNext();
+				return iteratorA.hasNext() && iteratorB.hasNext();
 			}
 
 			@Override
 			public C next() {
-				return zipper.apply(aIterator.next(), bIterator.next());
+				return zipper.apply(iteratorA.next(), iteratorB.next());
 			}
 		};
-	}
-
-	public static <A, B> Stream<Pair<A, B>> zipStream(Stream<? extends A> a,
-			Stream<? extends B> b) {
-		return zipStream(a, b, Pair::of);
-	}
-
-	public static <A, B, C> Stream<C> zipStream(Stream<? extends A> a,
-			Stream<? extends B> b,
-			BiFunction<? super A, ? super B, ? extends C> zipper) {
-
-		final Iterator<C> cIterator = zip(a, b, zipper);
-
-		final int both = a.spliterator().characteristics()
-				& b.spliterator().characteristics()
-				& ~(Spliterator.DISTINCT | Spliterator.SORTED);
-		final int characteristics = both;
-
-		final long zipSize = (characteristics & Spliterator.SIZED) != 0
-				? Math.min(a.spliterator().getExactSizeIfKnown(),
-						b.spliterator().getExactSizeIfKnown())
-				: -1;
-
-		final Spliterator<C> split = Spliterators.spliterator(cIterator,
-				zipSize, characteristics);
-		return a.isParallel() || b.isParallel()
-				? StreamSupport.stream(split, true)
-				: StreamSupport.stream(split, false);
+		final Iterable<C> iterableC = () -> iteratorC;
+		return StreamSupport.stream(iterableC.spliterator(), false);
 	}
 }

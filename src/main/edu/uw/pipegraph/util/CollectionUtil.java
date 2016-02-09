@@ -3,6 +3,8 @@ package edu.uw.pipegraph.util;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -13,6 +15,35 @@ import edu.uw.pipegraph.util.tuple.Pair;
 
 public class CollectionUtil {
 	private CollectionUtil() {
+	}
+
+	public static <R> R getUpToIth(Stream<R> stream, int i) {
+		return stream.limit(i + 1).reduce((a, b) -> b)
+				.orElseThrow(() -> new RuntimeException("Empty stream"));
+	}
+
+	public static <R> Stream<R> streamWhile(Supplier<R> supplier,
+			Predicate<R> condition) {
+		return toStream(new Iterator<R>() {
+			R next = supplier.get();
+
+			@Override
+			public boolean hasNext() {
+				return condition.test(next);
+			}
+
+			@Override
+			public R next() {
+				final R result = next;
+				next = supplier.get();
+				return result;
+			}
+		});
+	}
+
+	public static <T> Stream<T> toStream(Iterator<T> iterator) {
+		final Iterable<T> iterable = () -> iterator;
+		return StreamSupport.stream(iterable.spliterator(), false);
 	}
 
 	public static <A, B, C> Iterable<Pair<B, C>> zip(Map<A, B> a, Map<A, C> b) {
@@ -35,7 +66,7 @@ public class CollectionUtil {
 			BiFunction<? super A, ? super B, ? extends C> zipper) {
 		final Iterator<? extends A> iteratorA = a.iterator();
 		final Iterator<? extends B> iteratorB = b.iterator();
-		final Iterator<C> iteratorC = new Iterator<C>() {
+		return toStream(new Iterator<C>() {
 			@Override
 			public boolean hasNext() {
 				return iteratorA.hasNext() && iteratorB.hasNext();
@@ -45,8 +76,6 @@ public class CollectionUtil {
 			public C next() {
 				return zipper.apply(iteratorA.next(), iteratorB.next());
 			}
-		};
-		final Iterable<C> iterableC = () -> iteratorC;
-		return StreamSupport.stream(iterableC.spliterator(), false);
+		});
 	}
 }

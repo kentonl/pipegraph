@@ -17,6 +17,7 @@ import com.typesafe.config.ConfigValueFactory;
 
 import edu.uw.pipegraph.core.Pipegraph;
 import edu.uw.pipegraph.core.Stage;
+import edu.uw.pipegraph.util.CollectionUtil;
 import edu.uw.pipegraph.util.ConfigUtil;
 import edu.uw.pipegraph.web.renderer.IResourceRenderer;
 
@@ -45,18 +46,23 @@ public class StageHandler extends TargetedHandler {
 								.create(IResourceRenderer.class,
 										stage.getOutputClass().toString());
 						element.appendChild(renderer.render(
-								stage.readOutput(params.getInt("rawIndex")),
+								CollectionUtil.getUpToIth(stage.readOutput(),
+										params.getInt("rawIndex")),
 								params.withFallback(
 										renderer.getDefaultArguments())));
 					} else {
-						element.appendChild(new Pre().appendText(
-								stage.readOutput(params.getInt("rawIndex"))
-										.toString()));
+						element.appendChild(
+								new Pre()
+										.appendText(CollectionUtil
+												.getUpToIth(stage.readOutput(),
+														params.getInt(
+																"rawIndex"))
+												.toString()));
 					}
 				} else {
 					final Ul list = new Ul().setCSSClass("list-group");
 					element.appendChild(list);
-					IntStream.range(0, stage.numOutputs())
+					IntStream.range(0, (int) stage.readOutput().count())
 							.mapToObj(index -> new Li()
 									.setCSSClass("list-group-item")
 									.appendChild(new A()

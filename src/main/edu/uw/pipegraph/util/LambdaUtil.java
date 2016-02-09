@@ -3,6 +3,7 @@ package edu.uw.pipegraph.util;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,11 +38,25 @@ public class LambdaUtil {
 		};
 	}
 
+	public static <A> Supplier<A> rethrowSupplier(ThrowingSupplier<A> f) {
+		return () -> {
+			try {
+				return f.get();
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
+		};
+	}
+
 	public interface ThrowingConsumer<T> {
 		void consume(T t) throws Exception;
 	}
 
 	public interface ThrowingFunction<T, R> {
 		R apply(T t) throws Exception;
+	}
+
+	public interface ThrowingSupplier<R> {
+		R get() throws Exception;
 	}
 }

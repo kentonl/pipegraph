@@ -15,8 +15,10 @@ public class MultiplyTask implements ITask<IntegerResource> {
 	@Override
 	public Stream<IntegerResource> run(Stage stage) {
 		return Stream.of(IntegerResource.newBuilder()
-				.setData(stage.read("x", IntegerResource.class, 0).getData()
-						* stage.read("y", IntegerResource.class, 0).getData())
+				.setData(stage.read("x", IntegerResource.class).findFirst()
+						.get().getData()
+						* stage.read("y", IntegerResource.class).findFirst()
+								.get().getData())
 				.build());
 	}
 }

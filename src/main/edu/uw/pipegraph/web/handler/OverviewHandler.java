@@ -92,7 +92,7 @@ public class OverviewHandler extends TargetedHandler {
             Td duration = new Td();
             if (stage.hasStatus(Stage.Status.COMPLETED) || stage.hasStatus(Stage.Status.RUNNING)) {
                 duration.appendChild(new Span()
-                        .setCSSClass("badge badge-" + stage.getStatus().getLabelType())
+                        .setCSSClass("badge")
                         .appendText(stage.getTimer().toString()));
             }
             bodyRow.appendChild(duration);

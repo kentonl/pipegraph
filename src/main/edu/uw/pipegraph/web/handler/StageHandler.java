@@ -1,10 +1,5 @@
 package edu.uw.pipegraph.web.handler;
 
-import java.util.stream.IntStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hp.gagawa.java.Node;
 import com.hp.gagawa.java.elements.A;
 import com.hp.gagawa.java.elements.B;
@@ -14,6 +9,11 @@ import com.hp.gagawa.java.elements.Pre;
 import com.hp.gagawa.java.elements.Ul;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.stream.IntStream;
 
 import edu.uw.pipegraph.core.Pipegraph;
 import edu.uw.pipegraph.core.Stage;
@@ -60,9 +60,14 @@ public class StageHandler extends TargetedHandler {
 												.toString()));
 					}
 				} else {
+					int numResources = (int) stage.readOutput().count();
+                    if (numResources == 1) {
+                        return createContent(params.withValue("rawIndex",
+                                ConfigValueFactory.fromAnyRef(0)));
+                    }
 					final Ul list = new Ul().setCSSClass("list-group");
 					element.appendChild(list);
-					IntStream.range(0, (int) stage.readOutput().count())
+					IntStream.range(0, numResources)
 							.mapToObj(index -> new Li()
 									.setCSSClass("list-group-item")
 									.appendChild(new A()

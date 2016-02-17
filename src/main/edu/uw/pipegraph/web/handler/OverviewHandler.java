@@ -97,12 +97,22 @@ public class OverviewHandler extends TargetedHandler {
             }
             bodyRow.appendChild(duration);
 
+            double progressPercentage = (100.0 * stage.getProgressCount()) /
+                    stage.getProgressTotal();
+
             bodyRow.appendChild(new Td().appendChild(new Div()
                     .setCSSClass("progress")
                     .appendChild(new Div()
                             .setCSSClass("progress-bar progress-bar-striped progress-bar-"
                                     + stage.getStatus().getLabelType())
-                            .setStyle("width: " + Math.round(stage.getProgress() * 100) + "%;"))));
+                            .setStyle(String.format(
+                                    "min-width: 2em; width: %d%%;",
+                                    Math.round(progressPercentage)))
+                            .appendText(String.format(
+                                    "%d/%d (%.2f%%)",
+                                    stage.getProgressCount(),
+                                    stage.getProgressTotal(),
+                                    progressPercentage)))));
         }
         return overview;
     }

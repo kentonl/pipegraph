@@ -41,7 +41,8 @@ public class Stage {
     private final ITask<?> task;
     private final String type;
     private final Stopwatch timer;
-    private double progress = 0.0;
+    private int progressCount = 0;
+    private int progressTotal = 0;
     private Status status;
 
     public Stage(String name, Config config, Context context) {
@@ -61,6 +62,8 @@ public class Stage {
         this.status = Status.WAITING;
         this.task = context.getRegistry().create(ITask.class, type);
         this.timer = Stopwatch.createUnstarted();
+        this.progressCount = 0;
+        this.progressTotal = 1;
     }
 
     private static String getScope(String name) {
@@ -126,12 +129,17 @@ public class Stage {
         return type;
     }
 
-    public double getProgress() {
-        return progress;
+    public int getProgressCount() {
+        return progressCount;
     }
 
-    public void setProgress(double progress) {
-        this.progress = progress;
+    public int getProgressTotal() {
+        return progressTotal;
+    }
+
+    public void setProgress(int progressCount, int progressTotal) {
+        this.progressCount = progressCount;
+        this.progressTotal = progressTotal;
     }
 
     public boolean hasInput(String inputName) {
@@ -189,7 +197,7 @@ public class Stage {
                 status = Stage.Status.FAILED;
             }
         }
-        progress = 1.0;
+        progressCount = progressTotal;
     }
 
     public void setStatus(Status status) {

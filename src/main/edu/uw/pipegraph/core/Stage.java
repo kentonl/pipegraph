@@ -187,13 +187,14 @@ public class Stage {
             try {
                 MDC.put("stage-name", name);
                 timer.start();
-                writeProtos(task.run(this));
+                writeOutput(task.run(this));
                 timer.stop();
                 MDC.remove("stage-name");
                 status = Stage.Status.COMPLETED;
                 log.info("Stage '{}' completed in {}.", name, timer);
             } catch (final Exception e) {
                 log.error("Job failed.", e);
+                clearOutput();
                 status = Stage.Status.FAILED;
             }
         }
@@ -213,13 +214,17 @@ public class Stage {
                         .collect(Collectors.joining(",")), status);
     }
 
-    private <T extends Message> void writeProtos(Stream<T> values) {
+    private <T extends Message> void writeOutput(Stream<T> values) {
         try (final OutputStream out = new FileOutputStream(output)) {
             values.forEach(
                     LambdaUtil.rethrowConsumer(v -> v.writeDelimitedTo(out)));
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private <T extends Message> void clearOutput() {
+        output.delete();
     }
 
     public enum Status {

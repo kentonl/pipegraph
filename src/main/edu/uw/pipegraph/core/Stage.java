@@ -172,7 +172,7 @@ public class Stage {
     }
 
     public long size() {
-        return FileUtils.sizeOf(output);
+        return output.exists() ? FileUtils.sizeOf(output) : 0;
     }
 
     public Stopwatch getTimer() {

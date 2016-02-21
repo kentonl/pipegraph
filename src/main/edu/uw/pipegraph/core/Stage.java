@@ -7,6 +7,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -150,8 +152,8 @@ public class Stage {
         return output.exists();
     }
 
-    public boolean hasStatus(Status other) {
-        return status.equals(other);
+    public boolean hasStatus(Status... other) {
+        return Arrays.stream(other).anyMatch(status::equals);
     }
 
     public boolean isOutputReady() {
@@ -167,6 +169,10 @@ public class Stage {
     @SuppressWarnings("unchecked")
     public <T extends Message> Stream<T> readOutput() {
         return (Stream<T>) readProtos(output, getOutputClass());
+    }
+
+    public long size() {
+        return FileUtils.sizeOf(output);
     }
 
     public Stopwatch getTimer() {

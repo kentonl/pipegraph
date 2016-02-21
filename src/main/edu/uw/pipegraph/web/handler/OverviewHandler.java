@@ -12,6 +12,7 @@ import com.hp.gagawa.java.elements.Thead;
 import com.hp.gagawa.java.elements.Tr;
 import com.typesafe.config.Config;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +68,7 @@ public class OverviewHandler extends TargetedHandler {
                 .appendChild(new Th().appendText("Dependencies"))
                 .appendChild(new Th().appendText("Logs"))
                 .appendChild(new Th().appendText("Status"))
+                .appendChild(new Th().appendText("File size"))
                 .appendChild(new Th().appendText("Duration"))
                 .appendChild(new Th().appendText("Progress"));
         final Tbody tableBody = new Tbody();
@@ -89,8 +91,16 @@ public class OverviewHandler extends TargetedHandler {
                     .setCSSClass("label label-" + stage.getStatus().getLabelType())
                     .appendText(stage.getStatus().toString())));
 
+            Td size = new Td();
+            if (stage.hasStatus(Stage.Status.CACHED, Stage.Status.COMPLETED, Stage.Status.RUNNING)) {
+                size.appendChild(new Span()
+                        .setCSSClass("badge")
+                        .appendText(FileUtils.byteCountToDisplaySize(stage.size())));
+            }
+            bodyRow.appendChild(size);
+
             Td duration = new Td();
-            if (stage.hasStatus(Stage.Status.COMPLETED) || stage.hasStatus(Stage.Status.RUNNING)) {
+            if (stage.hasStatus(Stage.Status.COMPLETED, Stage.Status.RUNNING)) {
                 duration.appendChild(new Span()
                         .setCSSClass("badge")
                         .appendText(stage.getTimer().toString()));

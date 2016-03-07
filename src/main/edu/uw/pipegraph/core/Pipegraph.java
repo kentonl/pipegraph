@@ -1,14 +1,14 @@
 package edu.uw.pipegraph.core;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Pipegraph {
 	public static final Logger			log	= LoggerFactory

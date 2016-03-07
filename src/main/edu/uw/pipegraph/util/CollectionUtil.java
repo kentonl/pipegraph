@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -83,5 +84,10 @@ public class CollectionUtil {
                 return zipper.apply(iteratorA.next(), iteratorB.next());
             }
         }, a.isParallel() || b.isParallel());
+    }
+
+    public static <A, C> Stream<C> enumerate(Stream<? extends A> a,
+                                             BiFunction<? super A, Integer, ? extends C> zipper) {
+        return zip(a, IntStream.iterate(0, x -> x + 1).mapToObj(x -> x), zipper);
     }
 }

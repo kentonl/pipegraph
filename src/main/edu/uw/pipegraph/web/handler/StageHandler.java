@@ -17,6 +17,7 @@ import java.util.stream.IntStream;
 
 import edu.uw.pipegraph.core.Pipegraph;
 import edu.uw.pipegraph.core.Stage;
+import edu.uw.pipegraph.core.Stage.Status;
 import edu.uw.pipegraph.util.CollectionUtil;
 import edu.uw.pipegraph.util.ConfigUtil;
 import edu.uw.pipegraph.web.renderer.IResourceRenderer;
@@ -35,7 +36,7 @@ public class StageHandler extends TargetedHandler {
 	public Node createContent(Config params) {
 		final Stage stage = pipegraph.getStage(params.getString("name"));
 		final Div element = new Div();
-		if (stage.isOutputReady()) {
+		if (stage.hasStatus(Status.COMPLETED, Status.CACHED, Status.RUNNING)) {
 			if (stage.hasOutput()) {
 				if (params.hasPath("rawIndex")) {
 					if (!params.hasPath("raw") && pipegraph.getContext()

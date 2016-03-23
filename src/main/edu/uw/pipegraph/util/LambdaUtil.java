@@ -16,10 +16,10 @@ public class LambdaUtil {
 		return a -> s.get();
 	}
 
-	public static <A> Function<A, Object> toFunction(Consumer<A> c) {
+	public static <A> Function<A, A> toFunction(Consumer<A> c) {
 		return a -> {
 			c.accept(a);
-			return null;
+			return a;
 		};
 	}
 
@@ -34,10 +34,10 @@ public class LambdaUtil {
 		};
 	}
 
-	public static Function<Object, Object> toFunction(SideEffect se) {
+	public static <A> Function<A, A> toFunction(SideEffect se) {
 		return a -> {
 			se.perform();
-			return null;
+			return a;
 		};
 	}
 

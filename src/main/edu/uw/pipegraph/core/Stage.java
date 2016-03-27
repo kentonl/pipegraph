@@ -10,7 +10,6 @@ import com.typesafe.config.ConfigValue;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -191,11 +190,9 @@ public class Stage {
         } else {
             status = Stage.Status.RUNNING;
             try {
-                MDC.put("stage-name", name);
                 timer.start();
                 writeOutput(task.run(this));
                 timer.stop();
-                MDC.remove("stage-name");
                 status = Stage.Status.COMPLETED;
                 log.info("Stage '{}' completed in {}.", name, timer);
             } catch (final Exception e) {

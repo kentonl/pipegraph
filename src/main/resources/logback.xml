@@ -11,12 +11,12 @@
 
   <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
     <discriminator>
-      <key>stage-name</key>
+      <key>experiment-name</key>
       <defaultValue>default</defaultValue>
     </discriminator>
     <sift>
-      <appender name="FILE-${stage-name}" class="ch.qos.logback.core.FileAppender">
-        <file>logs/${stage-name}.log</file>
+      <appender name="FILE-${experiment-name}" class="ch.qos.logback.core.FileAppender">
+        <file>logs/${experiment-name}.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
           <pattern>%d{HH:mm:ss} | %-5level | %logger{20} | %msg%n%rEx</pattern>
         </encoder>
@@ -25,7 +25,7 @@
     </sift>
   </appender>
 
-  <root level="debug">
+  <root level="info">
     <appender-ref ref="STDOUT" />
     <appender-ref ref="SIFT" />
   </root>

@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 public class Pair<A, B> implements Serializable {
 	private final A	first;
 	private final B	second;
+	private final int hashCode;
 
 	private Pair(A first, B second) {
 		this.first = first;
 		this.second = second;
+		this.hashCode = Objects.hash(first, second);
 	}
 
 	public static <A, B> Collector<Pair<A, B>, ?, Map<A, B>> mapCollector() {
@@ -45,7 +47,7 @@ public class Pair<A, B> implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(first, second);
+		return hashCode;
 	}
 
 	public B second() {

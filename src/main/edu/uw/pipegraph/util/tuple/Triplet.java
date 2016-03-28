@@ -7,11 +7,13 @@ public class Triplet<A, B, C> implements Serializable {
 	private final A	first;
 	private final B	second;
 	private final C	third;
+	private final int hashCode;
 
 	private Triplet(A first, B second, C third) {
 		this.first = first;
 		this.second = second;
 		this.third = third;
+		this.hashCode = Objects.hash(first, second, third);
 	}
 
 	public static <A, B, C> Triplet<A, B, C> of(A first, B second, C third) {
@@ -37,7 +39,7 @@ public class Triplet<A, B, C> implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(first, second, third);
+		return hashCode;
 	}
 
 	public B second() {

@@ -36,7 +36,8 @@ public class StageHandler extends TargetedHandler {
 	public Node createContent(Config params) {
 		final Stage stage = pipegraph.getStage(params.getString("name"));
 		final Div element = new Div();
-		if (stage.hasStatus(Status.COMPLETED, Status.CACHED, Status.RUNNING)) {
+		if (stage.hasStatus(Status.COMPLETED, Status.CACHED) ||
+				(stage.hasStatus(Status.RUNNING) && stage.hasOutput())) {
 			if (stage.hasOutput()) {
 				if (params.hasPath("rawIndex")) {
 					if (!params.hasPath("raw") && pipegraph.getContext()

@@ -11,7 +11,9 @@ import org.slf4j.MDC;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class Pipegraph {
     public static final Logger log = LoggerFactory
@@ -21,15 +23,13 @@ public class Pipegraph {
     private final Context context;
     private final Map<String, Stage> stages;
 
-    public Pipegraph(File root, File configFile) {
+    public Pipegraph(File root, File configFile, Optional<List<String>> goals) {
         Preconditions.checkArgument(configFile.exists(), configFile + " not found.");
         this.context = new Context(root, configFile);
         MDC.put("experiment-name", context.getExperimentName());
         this.config = ConfigFactory.parseFileAnySyntax(configFile).resolve();
         this.stages = new HashMap<>();
-
-        config.getStringList("goals").forEach(this::populateStagesFor);
-
+        goals.orElseGet(() -> config.getStringList("goals")).forEach(this::populateStagesFor);
         log.debug("Stages:{}", stages.values());
     }
 

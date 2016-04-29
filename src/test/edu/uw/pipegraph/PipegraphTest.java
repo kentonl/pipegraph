@@ -32,7 +32,10 @@ public class PipegraphTest {
 
 	private void doTest(final File configFile, final String goal) {
 		try {
-			final Pipegraph graph = new Pipegraph(Files.createTempDirectory("test").toFile(), configFile);
+			final Pipegraph graph = new Pipegraph(
+                    Files.createTempDirectory("test").toFile(),
+					configFile,
+                    Optional.empty());
 			final IPipegraphRunner runner = new AsynchronousPipegraphRunner(
 					false);
 			runner.run(graph, Optional.empty());

@@ -27,7 +27,8 @@ public class LogHandler extends TargetedHandler {
 
     @Override
     public Node createContent(Config params) {
-        final Path logFile = Paths.get("logs", context.getExperimentName() + ".log");
+        final String stageName = params.getString("name");
+        final Path logFile = Paths.get("logs", context.getExperimentName() + "." + stageName + ".log");
         if (logFile.toFile().exists()) {
             try {
                 return new Pre().appendText(

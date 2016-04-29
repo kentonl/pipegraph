@@ -7,7 +7,6 @@ import com.typesafe.config.ConfigFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 import java.io.File;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ public class Pipegraph {
     public Pipegraph(File root, File configFile, Optional<List<String>> goals) {
         Preconditions.checkArgument(configFile.exists(), configFile + " not found.");
         this.context = new Context(root, configFile);
-        MDC.put("experiment-name", context.getExperimentName());
         this.config = ConfigFactory.parseFileAnySyntax(configFile).resolve();
         this.stages = new HashMap<>();
         goals.orElseGet(() -> config.getStringList("goals")).forEach(this::populateStagesFor);

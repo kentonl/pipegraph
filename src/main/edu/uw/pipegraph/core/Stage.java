@@ -10,6 +10,7 @@ import com.typesafe.config.ConfigValue;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,8 +32,7 @@ import edu.uw.pipegraph.util.CollectionUtil;
 import edu.uw.pipegraph.util.LambdaUtil;
 
 public class Stage {
-    public static final Logger log = LoggerFactory
-            .getLogger(Stage.class);
+    public static final Logger log = LoggerFactory.getLogger(Stage.class);
 
     private final Config arguments;
     private final Context context;
@@ -191,7 +191,9 @@ public class Stage {
             status = Stage.Status.RUNNING;
             try {
                 timer.start();
+                MDC.put("stage-name", context.getExperimentName() + "." + name);
                 writeOutput(task.run(this));
+                MDC.remove("stage-name");
                 timer.stop();
                 status = Stage.Status.COMPLETED;
                 log.info("Stage '{}' completed in {}.", name, timer);

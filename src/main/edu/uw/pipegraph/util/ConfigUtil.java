@@ -1,12 +1,16 @@
 package edu.uw.pipegraph.util;
 
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigList;
+import com.typesafe.config.ConfigValueFactory;
+
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ConfigUtil {
 
@@ -38,6 +42,27 @@ public class ConfigUtil {
 
 		public Config build() {
 			return ConfigFactory.parseMap(values);
+		}
+	}
+
+	public static ConfigListBuilder listBuilder() {
+		return new ConfigListBuilder();
+	}
+
+	public static class ConfigListBuilder {
+		private final List<Object> values;
+
+		public ConfigListBuilder() {
+			values = new ArrayList<>();
+		}
+
+		public ConfigListBuilder add(Object value) {
+			values.add(value);
+			return this;
+		}
+
+		public ConfigList build() {
+			return ConfigValueFactory.fromIterable(values);
 		}
 	}
 }

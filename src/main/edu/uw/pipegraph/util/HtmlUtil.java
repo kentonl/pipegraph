@@ -39,12 +39,13 @@ public class HtmlUtil {
 		final Head head = new Head();
 		html.appendChild(head);
 		jsFiles.stream().map(f -> new Script("text/javascript").setSrc(f)).forEach(head::appendChild);
+		html.appendChild(enablePopovers());
 
 		cssFiles.stream().map(f -> new Link().setRel("stylesheet").setHref(f)).forEach(head::appendChild);
 		final Body body = new Body();
 		html.appendChild(body);
 
-		final Div nav = new Div().setCSSClass("navbar navbar-default navbar-static-top");
+		final Div nav = new Div().setCSSClass("navbar navbar-inverse navbar-static-top");
 		body.appendChild(nav);
 
 		nav.appendChild(new Div().setCSSClass("container-fluid").appendChild(new Div().setCSSClass("navbar-header")
@@ -62,5 +63,9 @@ public class HtmlUtil {
 			descriptionList.appendChild(new Dd().appendChild(entry.getValue()));
 		}
 		return descriptionList;
+	}
+
+	public static Script enablePopovers() {
+		return new Script("text/javascript").appendText("$(document).ready(function(){$('[data-toggle=\"popover\"]').popover();})");
 	}
 }

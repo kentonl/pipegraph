@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigResolveOptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,9 @@ public class Pipegraph {
     public Pipegraph(File root, File configFile, Optional<List<String>> goals) {
         Preconditions.checkArgument(configFile.exists(), configFile + " not found.");
         this.context = new Context(root, configFile);
-        this.config = ConfigFactory.parseFileAnySyntax(configFile).resolve();
+        this.config = ConfigFactory.parseFileAnySyntax(configFile).resolve(ConfigResolveOptions
+                .defaults()
+                .setAllowUnresolved(true));
         this.stages = new HashMap<>();
         goals.orElseGet(() -> config.getStringList("goals")).forEach(this::populateStagesFor);
         log.debug("Stages:{}", stages.values());

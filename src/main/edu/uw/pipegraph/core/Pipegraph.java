@@ -16,8 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class Pipegraph {
-    public static final Logger log = LoggerFactory
-            .getLogger(Pipegraph.class);
+    public static final Logger log = LoggerFactory.getLogger(Pipegraph.class);
 
     private final Config config;
     private final Context context;

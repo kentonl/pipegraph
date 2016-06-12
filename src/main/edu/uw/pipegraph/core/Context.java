@@ -18,8 +18,7 @@ import edu.uw.pipegraph.registry.Registry;
 import edu.uw.pipegraph.util.LambdaUtil;
 
 public class Context {
-    public static final Logger log = LoggerFactory
-            .getLogger(Context.class);
+    public static final Logger log = LoggerFactory.getLogger(Context.class);
 
     private final File directory;
     private final ExtensionRegistry extensions;
